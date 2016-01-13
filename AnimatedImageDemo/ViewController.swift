@@ -27,6 +27,7 @@ class ViewController: UIViewController {
 //        imageView.player!.paused = !imageView.player!.paused
 //        let animatedGIFImage = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("niconiconi@2x", ofType: "gif")!)!)
         imageView.xly_setAnimatedImage(animatedGIFImage, restartIfSame: true)
+        imageView.xly_animatedImagePlayer?.speed = 1.5
     }
 
 }

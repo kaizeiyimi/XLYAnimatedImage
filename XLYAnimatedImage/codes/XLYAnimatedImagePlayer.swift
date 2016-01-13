@@ -33,6 +33,7 @@ private enum ImageState {
 public class AnimatedImagePlayer {
     
     public let scale: CGFloat
+    public var speed: Double = 1
     public var paused: Bool = false {
         didSet {
             link?.paused = paused
@@ -74,7 +75,7 @@ public class AnimatedImagePlayer {
     }
     
     @objc private func linkFired(link: CADisplayLink) {
-        let nextTime = time - floor(time / totalTime) * totalTime + link.duration
+        let nextTime = time - floor(time / totalTime) * totalTime + link.duration * speed
         // next index
         var index = 0
         for var temp: NSTimeInterval = 0, i = 0; i < frameCount; ++i {
