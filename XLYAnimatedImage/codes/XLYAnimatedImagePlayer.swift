@@ -17,6 +17,10 @@ extension UIImageView {
         }
         objc_setAssociatedObject(self, &UIImageView.kAnimatedImagePlayerKey, player, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
     }
+    
+    public var player: AnimatedImagePlayer? {
+        return objc_getAssociatedObject(self, &UIImageView.kAnimatedImagePlayerKey) as? AnimatedImagePlayer
+    }
 }
 
 private enum ImageState {
@@ -68,10 +72,7 @@ public class AnimatedImagePlayer {
     
     @objc private func linkFired(link: CADisplayLink) {
         let nextTime = time - floor(time / totalTime) * totalTime + link.duration
-        update(nextTime, lastDuration: link.duration)
-    }
-    
-    private func update(nextTime: NSTimeInterval, lastDuration: NSTimeInterval = 0) {
+        // next index
         var index = 0
         for var temp: NSTimeInterval = 0, i = 0; i < frameCount; ++i {
             temp += durations[i]
@@ -81,12 +82,10 @@ public class AnimatedImagePlayer {
             }
         }
         
-        if (index != frameIndex && !miss) || (index == frameIndex && miss) {
+        func loadImageAtIndex(index: Int) {
             OSSpinLockLock(&spinLock)
             let state = buffer[index]
             OSSpinLockUnlock(&spinLock)
-            time = nextTime
-            frameIndex = index
             if let state = state {
                 miss = false
                 if case .Image(let image) = state {
@@ -95,36 +94,66 @@ public class AnimatedImagePlayer {
             } else {
                 miss = true
             }
-        } else if index == frameIndex && !miss {
-            time = nextTime
         }
         
+        // update
+        if (index != frameIndex && !miss) || (index == frameIndex && miss) {
+            time = nextTime
+            frameIndex = index
+            loadImageAtIndex(index)
+        } else if index == frameIndex && !miss {
+            time = nextTime
+        } else if index != frameIndex && miss {
+            loadImageAtIndex(frameIndex)
+        }
+        
+        // preload
         if buffer.count < frameCount && operationQueue.operationCount == 0 {
-            operationQueue.addOperationWithBlock {[weak self, max = (frameIndex + 1) % frameCount] () -> Void in
-                if let this = self {
-                    for index in 0...max {
-                        OSSpinLockLock(&this.spinLock)
-                        let state = this.buffer[index]
-                        OSSpinLockUnlock(&this.spinLock)
-                        if state == nil {
-                            let image = this.image.imageAtIndex(index)
+            operationQueue.addOperationWithBlock
+                {[weak self, frameCount = frameCount, current = frameIndex, max = (frameIndex + 2) % frameCount] in
+                    if let this = self {
+                        let indies = NSMutableIndexSet()
+                        if current < max {
+                            indies.addIndexesInRange(NSMakeRange(current, max - current + 1))
+                        } else {
+                            indies.addIndexesInRange(NSMakeRange(current, frameCount - current))
+                            indies.addIndexesInRange(NSMakeRange(0, max + 1))
+                        }
+                        for index in indies {
                             OSSpinLockLock(&this.spinLock)
-                            this.buffer[index] = image == nil ? .None : .Image(image: image!)
+                            let state = this.buffer[index]
                             OSSpinLockUnlock(&this.spinLock)
+                            if state == nil {
+                                let image = this.image.imageAtIndex(index)
+                                OSSpinLockLock(&this.spinLock)
+                                this.buffer[index] = image == nil ? .None : .Image(image: image!)
+                                OSSpinLockUnlock(&this.spinLock)
+                            }
                         }
                     }
-                }
             }
         }
     }
     
     public func moveToFrameAtIndex(index: Int) {
-        let time = durations[0...index].reduce(0) { $0 + $1 }
-        update(time)
+        frameIndex = index % frameCount
+        self.time = durations[0...frameIndex].reduce(0) { $0 + $1 }
+        miss = false
     }
     
-    public func moveToTime(time: NSTimeInterval) {
-        update(time)
+    public func moveToTime(var time: NSTimeInterval) {
+        time = time - floor(time / totalTime) * totalTime
+        var index = 0
+        for var temp: NSTimeInterval = 0, i = 0; i < frameCount; ++i {
+            temp += durations[i]
+            if time < temp {
+                index = i
+                break
+            }
+        }
+        self.frameIndex = index
+        self.time = time
+        miss = false
     }
 
 }

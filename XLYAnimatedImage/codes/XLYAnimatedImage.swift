@@ -23,7 +23,7 @@ public protocol AnimatedImage: class {
 
 public class GIFImage: AnimatedImage {
     public struct InvalidDataError: ErrorType {
-        let description = "Data is not a valid GIF data."
+        public let description = "Data is not a valid GIF data."
     }
     
     static func getGIFSourceDurations(source: CGImageSource) throws -> [NSTimeInterval] {
@@ -41,7 +41,7 @@ public class GIFImage: AnimatedImage {
                 if (gifProperties != nil) {
                     let gifPropertiesDict = unsafeBitCast(gifProperties, CFDictionary.self)
                     let unclampedDelayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFUnclampedDelayTime, UnsafePointer<Void>.self)
-                    var number = unsafeBitCast(CFDictionaryGetValue(gifPropertiesDict, unclampedDelayTimePropertyKey), NSNumber.self);
+                    var number = unsafeBitCast(CFDictionaryGetValue(gifPropertiesDict, unclampedDelayTimePropertyKey), NSNumber.self)
                     if (number.doubleValue == 0) {
                         let delayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFDelayTime, UnsafePointer<Void>.self)
                         number = unsafeBitCast(CFDictionaryGetValue(gifPropertiesDict, delayTimePropertyKey), NSNumber.self)

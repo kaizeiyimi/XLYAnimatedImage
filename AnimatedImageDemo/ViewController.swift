@@ -23,7 +23,8 @@ class ViewController: UIViewController {
     
 
     @IBAction func add(sender: AnyObject) {
-        imageView2.setAnimatedImage(gifImage)
+        imageView.player?.moveToTime(30)
+//        imageView.player!.paused = !imageView.player!.paused
     }
 
 }
