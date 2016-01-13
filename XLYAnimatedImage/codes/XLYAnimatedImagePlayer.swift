@@ -9,16 +9,18 @@
 import UIKit
 
 extension UIImageView {
-    static private var kAnimatedImagePlayerKey = "kAnimatedImagePlayerKey"
+    static private var kAnimatedImagePlayerKey = "kaizei.yimi.kAnimatedImagePlayerKey"
     
-    public func setAnimatedImage(image: AnimatedImage) {
-        let player = AnimatedImagePlayer(image: image) {[weak self] (image, index, duration) -> Void in
-            self?.image = image
+    public func xly_setAnimatedImage(image: AnimatedImage, restartIfSame: Bool = false) {
+        if xly_animatedImagePlayer?.image !== image || restartIfSame {
+            let player = AnimatedImagePlayer(image: image) {[weak self] (image, index) -> Void in
+                self?.image = image
+            }
+            objc_setAssociatedObject(self, &UIImageView.kAnimatedImagePlayerKey, player, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
-        objc_setAssociatedObject(self, &UIImageView.kAnimatedImagePlayerKey, player, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
     }
     
-    public var player: AnimatedImagePlayer? {
+    public var xly_animatedImagePlayer: AnimatedImagePlayer? {
         return objc_getAssociatedObject(self, &UIImageView.kAnimatedImagePlayerKey) as? AnimatedImagePlayer
     }
 }
@@ -44,7 +46,7 @@ public class AnimatedImagePlayer {
     public private(set) var frameIndex: Int = 0
     public private(set) var time: NSTimeInterval = 0
     
-    private var handler: (image: UIImage, index: Int, duration: NSTimeInterval) -> Void
+    private var handler: (image: UIImage, index: Int) -> Void
     private let image: AnimatedImage
     private var link: CADisplayLink!
     
@@ -57,13 +59,14 @@ public class AnimatedImagePlayer {
     public init(scale: CGFloat = UIScreen.mainScreen().scale,
         runloopMode: String = NSRunLoopCommonModes,
         image: AnimatedImage,
-        handler: (image: UIImage, index: Int, duration: NSTimeInterval) -> Void) {
+        handler: (image: UIImage, index: Int) -> Void) {
             self.handler = handler
             self.scale = scale
             self.image = image
             link = CADisplayLink(target: WeakWrapper(self), selector: "linkFired:")
             link.addToRunLoop(NSRunLoop.mainRunLoop(), forMode: runloopMode)
             link.paused = paused
+            handler(image: image.firtImage, index: 0)
     }
     
     deinit {
@@ -89,7 +92,7 @@ public class AnimatedImagePlayer {
             if let state = state {
                 miss = false
                 if case .Image(let image) = state {
-                    handler(image: image, index: index, duration: durations[index])
+                    handler(image: image, index: index)
                 }
             } else {
                 miss = true

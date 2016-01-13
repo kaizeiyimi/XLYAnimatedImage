@@ -14,17 +14,19 @@ class ViewController: UIViewController {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var imageView2: UIImageView!
     
-    let gifImage = GIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("guo", ofType: "gif")!)!)
+    let animatedGIFImage = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("niconiconi@2x", ofType: "gif")!)!)
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        imageView.setAnimatedImage(gifImage)
+//        imageView.setAnimatedImage(AnimatedGIFImage)
     }
     
 
     @IBAction func add(sender: AnyObject) {
-        imageView.player?.moveToTime(30)
+//        imageView.player?.moveToTime(30)
 //        imageView.player!.paused = !imageView.player!.paused
+//        let animatedGIFImage = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("niconiconi@2x", ofType: "gif")!)!)
+        imageView.xly_setAnimatedImage(animatedGIFImage, restartIfSame: true)
     }
 
 }

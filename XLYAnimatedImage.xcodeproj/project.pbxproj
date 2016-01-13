@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F6E511B21C4658240088D34B /* niconiconi@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = F6E511B11C4658240088D34B /* niconiconi@2x.gif */; };
 		F6EC3E4D1C44951500BF8580 /* XLYAnimatedImage.h in Headers */ = {isa = PBXBuildFile; fileRef = F6EC3E4C1C44951500BF8580 /* XLYAnimatedImage.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F6EC3E561C44954400BF8580 /* XLYAnimatedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6EC3E551C44954400BF8580 /* XLYAnimatedImage.swift */; };
 		F6EC3E601C44985100BF8580 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6EC3E5F1C44985100BF8580 /* AppDelegate.swift */; };
@@ -47,6 +48,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F6E511B11C4658240088D34B /* niconiconi@2x.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "niconiconi@2x.gif"; sourceTree = "<group>"; };
 		F6EC3E491C44951500BF8580 /* XLYAnimatedImage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = XLYAnimatedImage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6EC3E4C1C44951500BF8580 /* XLYAnimatedImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XLYAnimatedImage.h; sourceTree = "<group>"; };
 		F6EC3E4E1C44951500BF8580 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 				F6EC3E631C44985100BF8580 /* Main.storyboard */,
 				F6EC3E661C44985100BF8580 /* Assets.xcassets */,
 				F6EC3E571C44983100BF8580 /* walk.gif */,
+				F6E511B11C4658240088D34B /* niconiconi@2x.gif */,
 				F6EC3E761C44DD5A00BF8580 /* guo.gif */,
 				F6EC3E7C1C46498800BF8580 /* pk.png */,
 				F6EC3E681C44985100BF8580 /* LaunchScreen.storyboard */,
@@ -242,6 +245,7 @@
 				F6EC3E651C44985100BF8580 /* Main.storyboard in Resources */,
 				F6EC3E751C44D53D00BF8580 /* walk.gif in Resources */,
 				F6EC3E7D1C46498800BF8580 /* pk.png in Resources */,
+				F6E511B21C4658240088D34B /* niconiconi@2x.gif in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -463,6 +467,7 @@
 				F6EC3E531C44951500BF8580 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		F6EC3E6C1C44985100BF8580 /* Build configuration list for PBXNativeTarget "AnimatedImageDemo" */ = {
 			isa = XCConfigurationList;
@@ -471,6 +476,7 @@
 				F6EC3E6E1C44985100BF8580 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

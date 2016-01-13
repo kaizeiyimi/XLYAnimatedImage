@@ -17,11 +17,12 @@ public protocol AnimatedImage: class {
     var frameCount: Int { get }
     var totalTime: NSTimeInterval { get }
     var durations: [NSTimeInterval] { get }
+    var firtImage: UIImage { get }
     func imageAtIndex(index: Int) -> UIImage?
 }
 
 
-public class GIFImage: AnimatedImage {
+public class AnimatedGIFImage: AnimatedImage {
     public struct InvalidDataError: ErrorType {
         public let description = "Data is not a valid GIF data."
     }
@@ -41,13 +42,15 @@ public class GIFImage: AnimatedImage {
                 if (gifProperties != nil) {
                     let gifPropertiesDict = unsafeBitCast(gifProperties, CFDictionary.self)
                     let unclampedDelayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFUnclampedDelayTime, UnsafePointer<Void>.self)
-                    var number = unsafeBitCast(CFDictionaryGetValue(gifPropertiesDict, unclampedDelayTimePropertyKey), NSNumber.self)
-                    if (number.doubleValue == 0) {
+                    var number = CFDictionaryGetValue(gifPropertiesDict, unclampedDelayTimePropertyKey)
+                    if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue > 0 {
+                        delay = unsafeBitCast(number, NSNumber.self).doubleValue
+                    } else {
                         let delayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFDelayTime, UnsafePointer<Void>.self)
-                        number = unsafeBitCast(CFDictionaryGetValue(gifPropertiesDict, delayTimePropertyKey), NSNumber.self)
-                    }
-                    if (number.doubleValue > 0) {
-                        delay = number.doubleValue
+                        number = CFDictionaryGetValue(gifPropertiesDict, delayTimePropertyKey)
+                        if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue > 0 {
+                            delay = unsafeBitCast(number, NSNumber.self).doubleValue
+                        }
                     }
                 }
             }
@@ -61,19 +64,24 @@ public class GIFImage: AnimatedImage {
     public var frameCount: Int { return durations.count }
     public let totalTime: NSTimeInterval
     public let durations: [NSTimeInterval]
+    public let firtImage: UIImage
     
     private let source: CGImageSource?
-    private var singleImage: UIImage?   // for invalid gif
     
     public init(data:NSData, scale: CGFloat = UIScreen.mainScreen().scale) {
         source = CGImageSourceCreateWithData(data, nil)
-        if let source = source, gifDurations = try? GIFImage.getGIFSourceDurations(source) {
-                totalTime = gifDurations.reduce(0){ $0 + $1 }
-                durations = gifDurations.map{ $0 }
+        if let source = source, gifDurations = try? AnimatedGIFImage.getGIFSourceDurations(source) {
+            totalTime = gifDurations.reduce(0){ $0 + $1 }
+            durations = gifDurations.map{ $0 }
+            if let image = decodeCGImage(CGImageSourceCreateImageAtIndex(source, 0, nil)) {
+                 firtImage = UIImage(CGImage: image, scale: scale, orientation: .Up)
+            } else {
+                firtImage = UIImage()
+            }
         } else {
             totalTime = 1
             durations = [1]
-            singleImage = UIImage(data: data, scale: scale)
+            firtImage = UIImage(data: data, scale: scale) ?? UIImage()
         }
         self.scale = scale
     }
