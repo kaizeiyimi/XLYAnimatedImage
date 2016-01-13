@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="AnimatedImageDemo" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="N2Y-Bu-W5K">
+                                <rect key="frame" x="20" y="20" width="46" height="30"/>
+                                <state key="normal" title="Button"/>
+                                <connections>
+                                    <action selector="add:" destination="BYZ-38-t0r" eventType="touchUpInside" id="sha-hE-1vl"/>
+                                </connections>
+                            </button>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="p0H-PB-PSd">
+                                <rect key="frame" x="163" y="282" width="275" height="240"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="275" id="98k-md-MmF"/>
+                                    <constraint firstAttribute="height" constant="240" id="RK1-86-ck5"/>
+                                </constraints>
+                            </imageView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VnJ-0g-Yuf">
+                                <rect key="frame" x="163" y="28" width="275" height="240"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="240" id="Uvp-7r-LFX"/>
+                                    <constraint firstAttribute="width" constant="275" id="eoS-bX-ROx"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="p0H-PB-PSd" firstAttribute="height" secondItem="VnJ-0g-Yuf" secondAttribute="height" id="9hJ-wT-b9H"/>
+                            <constraint firstItem="p0H-PB-PSd" firstAttribute="centerX" secondItem="VnJ-0g-Yuf" secondAttribute="centerX" id="Li8-N9-PrN"/>
+                            <constraint firstItem="VnJ-0g-Yuf" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" id="gBn-rc-Tbp"/>
+                            <constraint firstItem="p0H-PB-PSd" firstAttribute="width" secondItem="VnJ-0g-Yuf" secondAttribute="width" id="j0V-ep-ZuF"/>
+                            <constraint firstItem="VnJ-0g-Yuf" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="mqU-gR-DJA"/>
+                            <constraint firstItem="p0H-PB-PSd" firstAttribute="top" secondItem="VnJ-0g-Yuf" secondAttribute="bottom" constant="14" id="yEJ-d2-CWa"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="imageView" destination="VnJ-0g-Yuf" id="cXB-Cd-mYf"/>
+                        <outlet property="imageView2" destination="p0H-PB-PSd" id="zSK-Qy-lXc"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+</document>
