@@ -19,11 +19,19 @@ extension UIImageView {
     }
 }
 
+private enum ImageState {
+    case Image(image: UIImage)
+    case None
+}
 
 public class AnimatedImagePlayer {
     
     public let scale: CGFloat
-    public var paused: Bool = false
+    public var paused: Bool = false {
+        didSet {
+            link?.paused = paused
+        }
+    }
     
     public var frameCount: Int { return image.frameCount }
     public var totalTime: NSTimeInterval { return image.totalTime }
@@ -32,14 +40,20 @@ public class AnimatedImagePlayer {
     public private(set) var frameIndex: Int = 0
     public private(set) var time: NSTimeInterval = 0
     
-    private var handler: (image: UIImage?, index: Int, duration: NSTimeInterval) -> Void
+    private var handler: (image: UIImage, index: Int, duration: NSTimeInterval) -> Void
     private let image: AnimatedImage
     private var link: CADisplayLink!
+    
+    private var spinLock = OS_SPINLOCK_INIT
+    private var buffer: [Int: ImageState] = [:]
+    private var miss = true
+    
+    private let operationQueue = NSOperationQueue()
     
     public init(scale: CGFloat = UIScreen.mainScreen().scale,
         runloopMode: String = NSRunLoopCommonModes,
         image: AnimatedImage,
-        handler: (image: UIImage?, index: Int, duration: NSTimeInterval) -> Void) {
+        handler: (image: UIImage, index: Int, duration: NSTimeInterval) -> Void) {
             self.handler = handler
             self.scale = scale
             self.image = image
@@ -54,11 +68,10 @@ public class AnimatedImagePlayer {
     
     @objc private func linkFired(link: CADisplayLink) {
         let nextTime = time - floor(time / totalTime) * totalTime + link.duration
-        update(nextTime)
+        update(nextTime, lastDuration: link.duration)
     }
     
-    private func update(nextTime: NSTimeInterval) {
-        time = nextTime
+    private func update(nextTime: NSTimeInterval, lastDuration: NSTimeInterval = 0) {
         var index = 0
         for var temp: NSTimeInterval = 0, i = 0; i < frameCount; ++i {
             temp += durations[i]
@@ -67,10 +80,41 @@ public class AnimatedImagePlayer {
                 break
             }
         }
-        // TODO: async load image if needed. maybe cancel loading
-        if index != frameIndex {
+        
+        if (index != frameIndex && !miss) || (index == frameIndex && miss) {
+            OSSpinLockLock(&spinLock)
+            let state = buffer[index]
+            OSSpinLockUnlock(&spinLock)
+            time = nextTime
             frameIndex = index
-            handler(image: image.imageAtIndex(index), index: index, duration: durations[index])
+            if let state = state {
+                miss = false
+                if case .Image(let image) = state {
+                    handler(image: image, index: index, duration: durations[index])
+                }
+            } else {
+                miss = true
+            }
+        } else if index == frameIndex && !miss {
+            time = nextTime
+        }
+        
+        if buffer.count < frameCount && operationQueue.operationCount == 0 {
+            operationQueue.addOperationWithBlock {[weak self, max = (frameIndex + 1) % frameCount] () -> Void in
+                if let this = self {
+                    for index in 0...max {
+                        OSSpinLockLock(&this.spinLock)
+                        let state = this.buffer[index]
+                        OSSpinLockUnlock(&this.spinLock)
+                        if state == nil {
+                            let image = this.image.imageAtIndex(index)
+                            OSSpinLockLock(&this.spinLock)
+                            this.buffer[index] = image == nil ? .None : .Image(image: image!)
+                            OSSpinLockUnlock(&this.spinLock)
+                        }
+                    }
+                }
+            }
         }
     }
     
