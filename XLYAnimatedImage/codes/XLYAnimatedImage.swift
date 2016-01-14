@@ -34,7 +34,7 @@ public class AnimatedGIFImage: AnimatedImage {
         }
         
         func getDelay(source: CGImageSource, index: Int) -> NSTimeInterval {
-            var delay: NSTimeInterval = 1
+            var delay: NSTimeInterval = 0.1
             let propertiesDict = CGImageSourceCopyPropertiesAtIndex(source, index, nil)
             if (propertiesDict != nil) {
                 let gifDictionaryPropertyKey = unsafeBitCast(kCGImagePropertyGIFDictionary, UnsafePointer<Void>.self)
@@ -43,12 +43,12 @@ public class AnimatedGIFImage: AnimatedImage {
                     let gifPropertiesDict = unsafeBitCast(gifProperties, CFDictionary.self)
                     let unclampedDelayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFUnclampedDelayTime, UnsafePointer<Void>.self)
                     var number = CFDictionaryGetValue(gifPropertiesDict, unclampedDelayTimePropertyKey)
-                    if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue > 0 {
+                    if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue >= 0.01 {
                         delay = unsafeBitCast(number, NSNumber.self).doubleValue
-                    } else {
+                    } else if number == nil {
                         let delayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFDelayTime, UnsafePointer<Void>.self)
                         number = CFDictionaryGetValue(gifPropertiesDict, delayTimePropertyKey)
-                        if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue > 0 {
+                        if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue >= 0.01 {
                             delay = unsafeBitCast(number, NSNumber.self).doubleValue
                         }
                     }

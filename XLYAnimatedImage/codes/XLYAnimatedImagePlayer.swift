@@ -94,18 +94,8 @@ public class AnimatedImagePlayer {
     }
     
     private func update(nextTime: NSTimeInterval, loadImmediately: Bool = false) {
-        // find next index
-        var index = 0
-        for var temp: NSTimeInterval = 0, i = 0; i < frameCount; ++i {
-            temp += durations[i]
-            if nextTime < temp {
-                index = i
-                break
-            }
-        }
-        
         // load image at index. only fetch from cache
-        func loadImageAtIndex(index: Int) {
+        func showImageAtIndex(index: Int) {
             OSSpinLockLock(&spinLock)
             let state = cache[index]
             OSSpinLockUnlock(&spinLock)
@@ -132,15 +122,25 @@ public class AnimatedImagePlayer {
             }
         }
         
+        // find next index
+        var index = 0
+        for var temp: NSTimeInterval = 0, i = 0; i < frameCount; ++i {
+            temp += durations[i]
+            if nextTime < temp {
+                index = i
+                break
+            }
+        }
+        
         // update. do not skip loading frame
         if (index != frameIndex && !miss) || (index == frameIndex && miss) {
             time = nextTime
             frameIndex = index
-            loadImageAtIndex(index)
+            showImageAtIndex(index)
         } else if index == frameIndex && !miss {
             time = nextTime
         } else if index != frameIndex && miss {
-            loadImageAtIndex(frameIndex)
+            showImageAtIndex(frameIndex)
         }
         
         // preload
@@ -169,7 +169,7 @@ public class AnimatedImagePlayer {
                         if loadImmediately && !operation.cancelled {
                             dispatch_async(dispatch_get_main_queue()) {[weak self] in
                                 if self?.frameIndex == current {
-                                    loadImageAtIndex(current)
+                                    showImageAtIndex(current)
                                 }
                             }
                         }

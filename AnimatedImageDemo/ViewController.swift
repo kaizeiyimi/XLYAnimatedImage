@@ -53,13 +53,12 @@ class ViewController: UIViewController {
     
     
     @IBAction func panOnSpeedSlider(sender: UIPanGestureRecognizer) {
+        guard timeSlider.tracking else { return }
         switch sender.state {
         case .Began:
             imageView.xly_animatedImagePlayer?.paused = true
         case .Cancelled, .Ended, .Failed:
             imageView.xly_animatedImagePlayer?.paused = false
-        case .Changed:
-            changeTime(timeSlider)
         default:
             break
         }
