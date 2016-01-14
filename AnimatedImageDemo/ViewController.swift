@@ -12,23 +12,70 @@ import XLYAnimatedImage
 class ViewController: UIViewController {
 
     @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var imageView2: UIImageView!
+    @IBOutlet weak var timeSlider: UISlider!
+    @IBOutlet weak var speedStepper: UIStepper!
+    @IBOutlet weak var skipSwitch: UISwitch!
     
-    let animatedGIFImage = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("niconiconi@2x", ofType: "gif")!)!)
+    @IBOutlet weak var speedLabel: UILabel!
+    
+    
+    let animatedGIFImage0 = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("niconiconi@2x", ofType: "gif")!)!)
+    let animatedGIFImage1 = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("guo", ofType: "gif")!)!)
+    var restartIfSame = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        imageView.setAnimatedImage(AnimatedGIFImage)
+        
+        imageView.xly_setAnimatedImage(animatedGIFImage0)
+        imageView.xly_animatedImagePlayer?.onTimeElapse = {[unowned self] time in
+            self.timeSlider.value = Float(time / self.imageView.xly_animatedImagePlayer!.totalTime)
+        }
     }
     
-
-    @IBAction func add(sender: AnyObject) {
-//        imageView.player?.moveToTime(30)
-//        imageView.player!.paused = !imageView.player!.paused
-//        let animatedGIFImage = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("niconiconi@2x", ofType: "gif")!)!)
-        imageView.xly_setAnimatedImage(animatedGIFImage, restartIfSame: true)
-        imageView.xly_animatedImagePlayer?.speed = 1.5
+    @IBAction func changeTime(sender: UISlider) {
+        if let total = imageView.xly_animatedImagePlayer?.totalTime {
+            imageView.xly_animatedImagePlayer?.moveToTime(total * Double(sender.value))
+        }
+    }
+    
+    @IBAction func changeImage(sender: UISegmentedControl) {
+        if sender.selectedSegmentIndex == 0 {
+            imageView.xly_setAnimatedImage(animatedGIFImage0, restartIfSame: restartIfSame)
+        } else if sender.selectedSegmentIndex == 1 {
+            imageView.xly_setAnimatedImage(animatedGIFImage1, restartIfSame: restartIfSame)
+        }
+        imageView.xly_animatedImagePlayer?.onTimeElapse = {[unowned self] time in
+            self.timeSlider.value = Float(time / self.imageView.xly_animatedImagePlayer!.totalTime)
+        }
+    }
+    
+    
+    @IBAction func panOnSpeedSlider(sender: UIPanGestureRecognizer) {
+        switch sender.state {
+        case .Began:
+            imageView.xly_animatedImagePlayer?.paused = true
+        case .Cancelled, .Ended, .Failed:
+            imageView.xly_animatedImagePlayer?.paused = false
+        case .Changed:
+            changeTime(timeSlider)
+        default:
+            break
+        }
+    }
+    
+    @IBAction func changeSpeed(sender: UIStepper) {
+        imageView.xly_animatedImagePlayer?.speed = sender.value
+        speedLabel.text = "\(sender.value)"
+    }
+    
+    @IBAction func togglePause(sender: UITapGestureRecognizer) {
+        if let player = imageView.xly_animatedImagePlayer {
+            player.paused = !player.paused
+        }
     }
 
+    @IBAction func toggleRestartIfSame(sender: AnyObject) {
+        restartIfSame = !restartIfSame
+    }
 }
 

@@ -3,7 +3,6 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -15,46 +14,133 @@
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="N2Y-Bu-W5K">
-                                <rect key="frame" x="20" y="20" width="46" height="30"/>
-                                <state key="normal" title="Button"/>
-                                <connections>
-                                    <action selector="add:" destination="BYZ-38-t0r" eventType="touchUpInside" id="sha-hE-1vl"/>
-                                </connections>
-                            </button>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VnJ-0g-Yuf">
-                                <rect key="frame" x="180" y="50" width="240" height="135"/>
+                            <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VnJ-0g-Yuf">
+                                <rect key="frame" x="40" y="60" width="240" height="135"/>
+                                <gestureRecognizers/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="135" id="Uvp-7r-LFX"/>
                                     <constraint firstAttribute="width" constant="240" id="eoS-bX-ROx"/>
                                 </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.borderWidth">
+                                        <integer key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="DpM-VH-hGp" appends="YES" id="MOX-1v-Q0l"/>
+                                </connections>
                             </imageView>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="p0H-PB-PSd">
-                                <rect key="frame" x="180" y="199" width="240" height="135"/>
-                            </imageView>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="0.999" translatesAutoresizingMaskIntoConstraints="NO" id="6Mm-Yt-H9w">
+                                <rect key="frame" x="18" y="203" width="284" height="31"/>
+                                <gestureRecognizers/>
+                                <connections>
+                                    <action selector="changeTime:" destination="BYZ-38-t0r" eventType="valueChanged" id="aLf-Ks-fbe"/>
+                                    <outletCollection property="gestureRecognizers" destination="Ktf-3H-GpF" appends="YES" id="8jP-9u-hpb"/>
+                                </connections>
+                            </slider>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="1000" verticalHuggingPriority="251" text="speed" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nze-E1-XVA">
+                                <rect key="frame" x="20" y="246" width="48" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FA7-OT-kWc">
+                                <rect key="frame" x="108" y="289" width="51" height="31"/>
+                            </switch>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="skip frame" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nUM-5q-kQM">
+                                <rect key="frame" x="20" y="294" width="81" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KXv-rF-8Ju">
+                                <rect key="frame" x="87" y="246" width="50" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="50" id="OQ7-ob-wHg"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minimumValue="0.10000000000000001" maximumValue="2" stepValue="0.10000000000000001" translatesAutoresizingMaskIntoConstraints="NO" id="dK2-1K-p5L">
+                                <rect key="frame" x="157" y="242" width="94" height="29"/>
+                                <connections>
+                                    <action selector="changeSpeed:" destination="BYZ-38-t0r" eventType="valueChanged" id="n1a-Lv-THO"/>
+                                </connections>
+                            </stepper>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" momentary="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zuS-jx-9fW">
+                                <rect key="frame" x="100" y="20" width="121" height="29"/>
+                                <segments>
+                                    <segment title="First"/>
+                                    <segment title="Second"/>
+                                </segments>
+                                <connections>
+                                    <action selector="changeImage:" destination="BYZ-38-t0r" eventType="valueChanged" id="zC8-Ex-E84"/>
+                                </connections>
+                            </segmentedControl>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="OMN-b3-EYC">
+                                <rect key="frame" x="194" y="328" width="51" height="31"/>
+                                <connections>
+                                    <action selector="toggleRestartIfSame:" destination="BYZ-38-t0r" eventType="valueChanged" id="V6Q-rE-g8f"/>
+                                </connections>
+                            </switch>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="restart if same Object" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vuI-PD-oGJ">
+                                <rect key="frame" x="20" y="333" width="166" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="p0H-PB-PSd" firstAttribute="height" secondItem="VnJ-0g-Yuf" secondAttribute="height" id="9hJ-wT-b9H"/>
-                            <constraint firstItem="N2Y-Bu-W5K" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="DmR-L5-rPh"/>
-                            <constraint firstItem="p0H-PB-PSd" firstAttribute="centerX" secondItem="VnJ-0g-Yuf" secondAttribute="centerX" id="Li8-N9-PrN"/>
-                            <constraint firstItem="VnJ-0g-Yuf" firstAttribute="top" secondItem="N2Y-Bu-W5K" secondAttribute="bottom" id="Wzl-8H-mMd"/>
-                            <constraint firstAttribute="leadingMargin" secondItem="N2Y-Bu-W5K" secondAttribute="leading" id="c75-5n-PEq"/>
-                            <constraint firstItem="p0H-PB-PSd" firstAttribute="width" secondItem="VnJ-0g-Yuf" secondAttribute="width" id="j0V-ep-ZuF"/>
+                            <constraint firstItem="zuS-jx-9fW" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="4JP-29-aW9"/>
+                            <constraint firstItem="nUM-5q-kQM" firstAttribute="top" secondItem="Nze-E1-XVA" secondAttribute="bottom" constant="27.5" id="51Q-zD-Ix9"/>
+                            <constraint firstAttribute="trailing" secondItem="6Mm-Yt-H9w" secondAttribute="trailing" constant="20" id="5Qi-Bh-8jr"/>
+                            <constraint firstItem="OMN-b3-EYC" firstAttribute="leading" secondItem="vuI-PD-oGJ" secondAttribute="trailing" constant="8" id="9s1-Qm-56g"/>
+                            <constraint firstItem="OMN-b3-EYC" firstAttribute="centerY" secondItem="vuI-PD-oGJ" secondAttribute="centerY" id="AF2-Dl-CBg"/>
+                            <constraint firstItem="KXv-rF-8Ju" firstAttribute="centerY" secondItem="Nze-E1-XVA" secondAttribute="centerY" id="BLj-C7-GBp"/>
+                            <constraint firstItem="Nze-E1-XVA" firstAttribute="top" secondItem="6Mm-Yt-H9w" secondAttribute="bottom" constant="13" id="D8R-zh-VLK"/>
+                            <constraint firstItem="dK2-1K-p5L" firstAttribute="centerY" secondItem="KXv-rF-8Ju" secondAttribute="centerY" id="DCA-rU-Vy5"/>
+                            <constraint firstItem="vuI-PD-oGJ" firstAttribute="leading" secondItem="nUM-5q-kQM" secondAttribute="leading" id="Jgd-P7-IVb"/>
+                            <constraint firstItem="VnJ-0g-Yuf" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="40" id="KNx-Z1-zLC"/>
+                            <constraint firstItem="zuS-jx-9fW" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="T26-ZJ-cm6"/>
+                            <constraint firstItem="Nze-E1-XVA" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="T5R-U9-Xen"/>
+                            <constraint firstItem="KXv-rF-8Ju" firstAttribute="leading" secondItem="Nze-E1-XVA" secondAttribute="trailing" constant="20" id="Twn-aD-p6Y"/>
+                            <constraint firstItem="nUM-5q-kQM" firstAttribute="leading" secondItem="Nze-E1-XVA" secondAttribute="leading" id="hZe-D1-Hn2"/>
+                            <constraint firstItem="6Mm-Yt-H9w" firstAttribute="top" secondItem="VnJ-0g-Yuf" secondAttribute="bottom" constant="8" id="itA-qy-kvQ"/>
+                            <constraint firstItem="dK2-1K-p5L" firstAttribute="leading" secondItem="KXv-rF-8Ju" secondAttribute="trailing" constant="20" id="izG-Ep-78S"/>
+                            <constraint firstItem="6Mm-Yt-H9w" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="kun-Lv-nCo"/>
                             <constraint firstItem="VnJ-0g-Yuf" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="mqU-gR-DJA"/>
-                            <constraint firstItem="p0H-PB-PSd" firstAttribute="top" secondItem="VnJ-0g-Yuf" secondAttribute="bottom" constant="14" id="yEJ-d2-CWa"/>
+                            <constraint firstItem="FA7-OT-kWc" firstAttribute="leading" secondItem="nUM-5q-kQM" secondAttribute="trailing" constant="8" id="o5y-bD-NJm"/>
+                            <constraint firstItem="FA7-OT-kWc" firstAttribute="centerY" secondItem="nUM-5q-kQM" secondAttribute="centerY" id="vr3-db-vdn"/>
+                            <constraint firstItem="vuI-PD-oGJ" firstAttribute="top" secondItem="nUM-5q-kQM" secondAttribute="bottom" constant="19" id="wZ6-Kk-RVl"/>
                         </constraints>
                     </view>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
                     <connections>
                         <outlet property="imageView" destination="VnJ-0g-Yuf" id="cXB-Cd-mYf"/>
-                        <outlet property="imageView2" destination="p0H-PB-PSd" id="zSK-Qy-lXc"/>
+                        <outlet property="skipSwitch" destination="FA7-OT-kWc" id="dWz-qv-Vq3"/>
+                        <outlet property="speedLabel" destination="KXv-rF-8Ju" id="ATO-wD-RV8"/>
+                        <outlet property="speedStepper" destination="dK2-1K-p5L" id="LUs-YX-eZo"/>
+                        <outlet property="timeSlider" destination="6Mm-Yt-H9w" id="Xww-2g-OCy"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="DpM-VH-hGp">
+                    <connections>
+                        <action selector="togglePause:" destination="BYZ-38-t0r" id="F54-lY-JhG"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <panGestureRecognizer cancelsTouchesInView="NO" minimumNumberOfTouches="1" id="Ktf-3H-GpF">
+                    <connections>
+                        <action selector="panOnSpeedSlider:" destination="BYZ-38-t0r" id="Plh-kT-bvO"/>
+                    </connections>
+                </panGestureRecognizer>
             </objects>
+            <point key="canvasLocation" x="332" y="333"/>
         </scene>
     </scenes>
 </document>

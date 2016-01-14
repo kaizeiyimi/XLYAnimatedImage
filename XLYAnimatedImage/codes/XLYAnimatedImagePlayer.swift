@@ -43,9 +43,14 @@ public class AnimatedImagePlayer {
     public var frameCount: Int { return image.frameCount }
     public var totalTime: NSTimeInterval { return image.totalTime }
     public var durations: [NSTimeInterval] { return image.durations }
+    public var onTimeElapse: (NSTimeInterval -> Void)?
     
     public private(set) var frameIndex: Int = 0
-    public private(set) var time: NSTimeInterval = 0
+    public private(set) var time: NSTimeInterval = 0 {
+        didSet {
+            onTimeElapse?(time)
+        }
+    }
     
     private var handler: (image: UIImage, index: Int) -> Void
     private let image: AnimatedImage
@@ -76,6 +81,10 @@ public class AnimatedImagePlayer {
     
     @objc private func linkFired(link: CADisplayLink) {
         let nextTime = time - floor(time / totalTime) * totalTime + link.duration * speed
+        update(nextTime)
+    }
+    
+    private func update(nextTime: NSTimeInterval) {
         // next index
         var index = 0
         for var temp: NSTimeInterval = 0, i = 0; i < frameCount; ++i {
@@ -143,6 +152,7 @@ public class AnimatedImagePlayer {
         frameIndex = index % frameCount
         self.time = durations[0...frameIndex].reduce(0) { $0 + $1 }
         miss = true
+        update(self.time)
     }
     
     public func moveToTime(var time: NSTimeInterval) {
@@ -158,6 +168,7 @@ public class AnimatedImagePlayer {
         self.frameIndex = index
         self.time = time
         miss = true
+        update(self.time)
     }
 
 }
