@@ -17,6 +17,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var skipSwitch: UISwitch!
     
     @IBOutlet weak var speedLabel: UILabel!
+    @IBOutlet weak var linkFrameIntervalLabel: UILabel!
     
     
     let animatedGIFImage0 = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("niconiconi@2x", ofType: "gif")!)!)
@@ -27,6 +28,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         imageView.xly_setAnimatedImage(animatedGIFImage0)
+        imageView.xly_animatedImagePlayer?.speed = 20
         imageView.xly_animatedImagePlayer?.onTimeElapse = {[unowned self] time in
             self.timeSlider.value = Float(time / self.imageView.xly_animatedImagePlayer!.totalTime)
         }
@@ -74,9 +76,20 @@ class ViewController: UIViewController {
             player.paused = !player.paused
         }
     }
+    @IBAction func toggleSkipFrame(sender: AnyObject) {
+        if let player = imageView.xly_animatedImagePlayer {
+            player.skipFrames = !player.skipFrames
+        }
+    }
 
     @IBAction func toggleRestartIfSame(sender: AnyObject) {
         restartIfSame = !restartIfSame
     }
+    
+    @IBAction func changeLinkFrameInterval(sender: UIStepper) {
+        imageView.xly_animatedImagePlayer?.displayLinkFrameInterval = Int(sender.value)
+        linkFrameIntervalLabel.text = "\(Int(sender.value))"
+    }
+    
 }
 

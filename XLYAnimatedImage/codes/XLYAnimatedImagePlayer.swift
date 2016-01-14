@@ -42,9 +42,15 @@ public class AnimatedImagePlayer {
         }
     }
     
+    public var skipFrames = true
+    public var displayLinkFrameInterval: Int {
+        get { return link.frameInterval }
+        set { link.frameInterval = newValue }
+    }
     public var frameCount: Int { return image.frameCount }
     public var totalTime: NSTimeInterval { return image.totalTime }
     public var durations: [NSTimeInterval] { return image.durations }
+    
     public var onTimeElapse: (NSTimeInterval -> Void)?
     
     public private(set) var frameIndex: Int = 0
@@ -73,6 +79,7 @@ public class AnimatedImagePlayer {
             self.image = image
             link = CADisplayLink(target: WeakWrapper(self), selector: "linkFired:")
             link.addToRunLoop(NSRunLoop.mainRunLoop(), forMode: runloopMode)
+            link.frameInterval = 1
             link.paused = paused
             handler(image: image.firtImage, index: 0)
             NSNotificationCenter.defaultCenter().addObserver(self, selector: "clearCache:", name: UIApplicationDidReceiveMemoryWarningNotification, object: nil)
@@ -93,7 +100,7 @@ public class AnimatedImagePlayer {
     }
     
     @objc private func linkFired(link: CADisplayLink) {
-        let nextTime = time - floor(time / totalTime) * totalTime + link.duration * speed
+        let nextTime = time - floor(time / totalTime) * totalTime + link.duration * Double(link.frameInterval) * speed
         update(nextTime)
     }
     
@@ -126,25 +133,41 @@ public class AnimatedImagePlayer {
             }
         }
         
-        // find next index
-        var index = 0
-        for var temp: NSTimeInterval = 0, i = 0; i < frameCount; ++i {
-            temp += durations[i]
-            if nextTime < temp {
-                index = i
-                break
+        if skipFrames {
+            var index = 0
+            for var temp: NSTimeInterval = 0, i = 0; i < frameCount; ++i {
+                temp += durations[i]
+                if nextTime < temp {
+                    index = i
+                    break
+                }
             }
-        }
-        
-        // update. do not skip loading frame
-        if (index != frameIndex && !miss) || (index == frameIndex && miss) {
-            time = nextTime
-            frameIndex = index
-            showImageAtIndex(index)
-        } else if index == frameIndex && !miss {
-            time = nextTime
-        } else if index != frameIndex && miss {
-            showImageAtIndex(frameIndex)
+            if (index != frameIndex && !miss) || (index == frameIndex && miss) {
+                time = nextTime
+                frameIndex = index
+                showImageAtIndex(index)
+            } else if index == frameIndex && !miss {
+                time = nextTime
+            } else if index != frameIndex && miss {
+                showImageAtIndex(frameIndex)
+            }
+        } else {
+            let frameEndTime = durations[0...frameIndex].reduce(0){ $0 + $1 }
+            let shouldShowNext = (nextTime >= frameEndTime) || (nextTime < frameEndTime - durations[frameIndex])
+            if !shouldShowNext && miss {
+                time = nextTime
+                showImageAtIndex(frameIndex)
+            } else if !shouldShowNext && !miss {
+                time = nextTime
+            } else if shouldShowNext && miss {
+                print("bingo!")
+                showImageAtIndex(frameIndex)
+            } else if shouldShowNext && !miss {
+                let nextDuration = durations[(frameIndex + 1) % frameCount]
+                time = min(nextTime, frameEndTime + nextDuration)
+                frameIndex = (frameIndex + 1) % frameCount
+                showImageAtIndex(frameIndex)
+            }
         }
         
         // preload
