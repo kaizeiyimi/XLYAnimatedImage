@@ -57,7 +57,7 @@ public class AnimatedImagePlayer {
     private var link: CADisplayLink!
     
     private var spinLock = OS_SPINLOCK_INIT
-    private var buffer: [Int: ImageState] = [:]
+    private var cache: [Int: ImageState] = [:]
     private var miss = true
     
     private let operationQueue = NSOperationQueue()
@@ -73,10 +73,19 @@ public class AnimatedImagePlayer {
             link.addToRunLoop(NSRunLoop.mainRunLoop(), forMode: runloopMode)
             link.paused = paused
             handler(image: image.firtImage, index: 0)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: "clearCache:", name: UIApplicationDidReceiveMemoryWarningNotification, object: nil)
     }
     
     deinit {
         link.invalidate()
+        operationQueue.cancelAllOperations()
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    @objc private func clearCache(notify: NSNotification) {
+        OSSpinLockLock(&spinLock)
+        cache.removeAll(keepCapacity: true)
+        OSSpinLockUnlock(&spinLock)
     }
     
     @objc private func linkFired(link: CADisplayLink) {
@@ -84,8 +93,8 @@ public class AnimatedImagePlayer {
         update(nextTime)
     }
     
-    private func update(nextTime: NSTimeInterval) {
-        // next index
+    private func update(nextTime: NSTimeInterval, loadImmediately: Bool = false) {
+        // find next index
         var index = 0
         for var temp: NSTimeInterval = 0, i = 0; i < frameCount; ++i {
             temp += durations[i]
@@ -95,9 +104,10 @@ public class AnimatedImagePlayer {
             }
         }
         
+        // load image at index. only fetch from cache
         func loadImageAtIndex(index: Int) {
             OSSpinLockLock(&spinLock)
-            let state = buffer[index]
+            let state = cache[index]
             OSSpinLockUnlock(&spinLock)
             if let state = state {
                 miss = false
@@ -109,7 +119,20 @@ public class AnimatedImagePlayer {
             }
         }
         
-        // update   jump frame
+        // decode image at index. decode and save to cache
+        func decodeImageAtIndex(index: Int) {
+            OSSpinLockLock(&spinLock)
+            let state = cache[index]
+            OSSpinLockUnlock(&spinLock)
+            if state == nil {
+                let image = self.image.imageAtIndex(index)
+                OSSpinLockLock(&spinLock)
+                cache[index] = image == nil ? .None : .Image(image: image!)
+                OSSpinLockUnlock(&spinLock)
+            }
+        }
+        
+        // update. do not skip loading frame
         if (index != frameIndex && !miss) || (index == frameIndex && miss) {
             time = nextTime
             frameIndex = index
@@ -121,10 +144,16 @@ public class AnimatedImagePlayer {
         }
         
         // preload
-        if buffer.count < frameCount && operationQueue.operationCount == 0 {
-            operationQueue.addOperationWithBlock
-                {[weak self, frameCount = frameCount, current = frameIndex, max = (frameIndex + 2) % frameCount] in
-                    if let this = self {
+        if cache.count < frameCount && (operationQueue.operationCount == 0 || loadImmediately) {
+            if loadImmediately {
+                operationQueue.cancelAllOperations()
+            }
+            
+            let operation = NSBlockOperation()
+            operation.addExecutionBlock
+                {[weak self, unowned operation, frameCount = frameCount, current = frameIndex, max = (frameIndex + 2) % frameCount] in
+                    if let _ = self {
+                        if operation.cancelled { return }
                         let indies = NSMutableIndexSet()
                         if current < max {
                             indies.addIndexesInRange(NSMakeRange(current, max - current + 1))
@@ -132,19 +161,22 @@ public class AnimatedImagePlayer {
                             indies.addIndexesInRange(NSMakeRange(current, frameCount - current))
                             indies.addIndexesInRange(NSMakeRange(0, max + 1))
                         }
+                        if operation.cancelled { return }
                         for index in indies {
-                            OSSpinLockLock(&this.spinLock)
-                            let state = this.buffer[index]
-                            OSSpinLockUnlock(&this.spinLock)
-                            if state == nil {
-                                let image = this.image.imageAtIndex(index)
-                                OSSpinLockLock(&this.spinLock)
-                                this.buffer[index] = image == nil ? .None : .Image(image: image!)
-                                OSSpinLockUnlock(&this.spinLock)
+                            if operation.cancelled { return }
+                            decodeImageAtIndex(index)
+                        }
+                        if loadImmediately && !operation.cancelled {
+                            dispatch_async(dispatch_get_main_queue()) {[weak self] in
+                                if self?.frameIndex == current {
+                                    loadImageAtIndex(current)
+                                }
                             }
                         }
                     }
-            }
+                }
+            
+            operationQueue.addOperation(operation)
         }
     }
     
@@ -152,7 +184,7 @@ public class AnimatedImagePlayer {
         frameIndex = index % frameCount
         self.time = durations[0...frameIndex].reduce(0) { $0 + $1 }
         miss = true
-        update(self.time)
+        update(self.time, loadImmediately: true)
     }
     
     public func moveToTime(var time: NSTimeInterval) {
@@ -168,7 +200,7 @@ public class AnimatedImagePlayer {
         self.frameIndex = index
         self.time = time
         miss = true
-        update(self.time)
+        update(self.time, loadImmediately: true)
     }
 
 }

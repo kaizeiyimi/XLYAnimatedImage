@@ -44,6 +44,8 @@ class ViewController: UIViewController {
         } else if sender.selectedSegmentIndex == 1 {
             imageView.xly_setAnimatedImage(animatedGIFImage1, restartIfSame: restartIfSame)
         }
+        
+        imageView.xly_animatedImagePlayer?.speed = speedStepper.value
         imageView.xly_animatedImagePlayer?.onTimeElapse = {[unowned self] time in
             self.timeSlider.value = Float(time / self.imageView.xly_animatedImagePlayer!.totalTime)
         }
@@ -65,7 +67,7 @@ class ViewController: UIViewController {
     
     @IBAction func changeSpeed(sender: UIStepper) {
         imageView.xly_animatedImagePlayer?.speed = sender.value
-        speedLabel.text = "\(sender.value)"
+        speedLabel.text = NSString(format: "%.01f", sender.value) as String
     }
     
     @IBAction func togglePause(sender: UITapGestureRecognizer) {
