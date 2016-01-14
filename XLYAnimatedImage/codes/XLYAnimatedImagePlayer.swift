@@ -32,6 +32,8 @@ private enum ImageState {
 
 public class AnimatedImagePlayer {
     
+    static private let preloadCount = 2
+    
     public let scale: CGFloat
     public var speed: Double = 1
     public var paused: Bool = false {
@@ -84,7 +86,9 @@ public class AnimatedImagePlayer {
     
     @objc private func clearCache(notify: NSNotification) {
         OSSpinLockLock(&spinLock)
+        let kept = (1...AnimatedImagePlayer.preloadCount).map { (($0 + frameIndex) % frameCount, cache[($0 + frameIndex) % frameCount]) }
         cache.removeAll(keepCapacity: true)
+        kept.forEach { cache[$0.0] = $0.1 }
         OSSpinLockUnlock(&spinLock)
     }
     
@@ -151,7 +155,8 @@ public class AnimatedImagePlayer {
             
             let operation = NSBlockOperation()
             operation.addExecutionBlock
-                {[weak self, unowned operation, frameCount = frameCount, current = frameIndex, max = (frameIndex + 2) % frameCount] in
+                {[weak self, unowned operation, frameCount = frameCount, current = frameIndex,
+                    max = (frameIndex + AnimatedImagePlayer.preloadCount) % frameCount] in
                     if let _ = self {
                         if operation.cancelled { return }
                         let indies = NSMutableIndexSet()

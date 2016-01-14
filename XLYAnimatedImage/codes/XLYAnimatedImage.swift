@@ -10,6 +10,7 @@ import UIKit
 import ImageIO
 import MobileCoreServices
 
+private let kMinDurationPerFrame = 0.01, kDefaultDurationPerFrame = 0.1
 
 // MARK: - image
 public protocol AnimatedImage: class {
@@ -34,7 +35,7 @@ public class AnimatedGIFImage: AnimatedImage {
         }
         
         func getDelay(source: CGImageSource, index: Int) -> NSTimeInterval {
-            var delay: NSTimeInterval = 0.1
+            var delay: NSTimeInterval = kDefaultDurationPerFrame
             let propertiesDict = CGImageSourceCopyPropertiesAtIndex(source, index, nil)
             if (propertiesDict != nil) {
                 let gifDictionaryPropertyKey = unsafeBitCast(kCGImagePropertyGIFDictionary, UnsafePointer<Void>.self)
@@ -43,12 +44,12 @@ public class AnimatedGIFImage: AnimatedImage {
                     let gifPropertiesDict = unsafeBitCast(gifProperties, CFDictionary.self)
                     let unclampedDelayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFUnclampedDelayTime, UnsafePointer<Void>.self)
                     var number = CFDictionaryGetValue(gifPropertiesDict, unclampedDelayTimePropertyKey)
-                    if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue >= 0.01 {
+                    if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue >= kMinDurationPerFrame {
                         delay = unsafeBitCast(number, NSNumber.self).doubleValue
                     } else if number == nil {
                         let delayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFDelayTime, UnsafePointer<Void>.self)
                         number = CFDictionaryGetValue(gifPropertiesDict, delayTimePropertyKey)
-                        if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue >= 0.01 {
+                        if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue >= kMinDurationPerFrame {
                             delay = unsafeBitCast(number, NSNumber.self).doubleValue
                         }
                     }
@@ -79,8 +80,8 @@ public class AnimatedGIFImage: AnimatedImage {
                 firtImage = UIImage()
             }
         } else {
-            totalTime = 1
-            durations = [1]
+            totalTime = kDefaultDurationPerFrame
+            durations = [kDefaultDurationPerFrame]
             firtImage = UIImage(data: data, scale: scale) ?? UIImage()
         }
         self.scale = scale
@@ -98,25 +99,29 @@ public class AnimatedGIFImage: AnimatedImage {
 /// stolen from SDWebImage's decoder. just change OC to swift.
 private func decodeCGImage(image: CGImage?) -> CGImage? {
     guard let image = image else { return nil }
-    let width = CGImageGetWidth(image), height = CGImageGetHeight(image)
-    
-    let colorSpace = CGColorSpaceCreateDeviceRGB()
-    var bitmapInfo = CGImageGetBitmapInfo(image).rawValue
-    let infoMask = bitmapInfo & CGBitmapInfo.AlphaInfoMask.rawValue
-    let anyNonAlpha = (infoMask == CGImageAlphaInfo.None.rawValue ||
-        infoMask == CGImageAlphaInfo.NoneSkipFirst.rawValue ||
-        infoMask == CGImageAlphaInfo.NoneSkipLast.rawValue)
-    
-    if infoMask == CGImageAlphaInfo.None.rawValue && CGColorSpaceGetNumberOfComponents(colorSpace) > 1 {
-        bitmapInfo &= ~CGBitmapInfo.AlphaInfoMask.rawValue
-        bitmapInfo |= CGImageAlphaInfo.NoneSkipFirst.rawValue
-    } else if !anyNonAlpha && CGColorSpaceGetNumberOfComponents(colorSpace) == 3 {
-        bitmapInfo &= ~CGBitmapInfo.AlphaInfoMask.rawValue
-        bitmapInfo |= CGImageAlphaInfo.PremultipliedFirst.rawValue
+    var result: CGImage?
+    autoreleasepool {
+        let width = CGImageGetWidth(image), height = CGImageGetHeight(image)
+        
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        var bitmapInfo = CGImageGetBitmapInfo(image).rawValue
+        let infoMask = bitmapInfo & CGBitmapInfo.AlphaInfoMask.rawValue
+        let anyNonAlpha = (infoMask == CGImageAlphaInfo.None.rawValue ||
+            infoMask == CGImageAlphaInfo.NoneSkipFirst.rawValue ||
+            infoMask == CGImageAlphaInfo.NoneSkipLast.rawValue)
+        
+        if infoMask == CGImageAlphaInfo.None.rawValue && CGColorSpaceGetNumberOfComponents(colorSpace) > 1 {
+            bitmapInfo &= ~CGBitmapInfo.AlphaInfoMask.rawValue
+            bitmapInfo |= CGImageAlphaInfo.NoneSkipFirst.rawValue
+        } else if !anyNonAlpha && CGColorSpaceGetNumberOfComponents(colorSpace) == 3 {
+            bitmapInfo &= ~CGBitmapInfo.AlphaInfoMask.rawValue
+            bitmapInfo |= CGImageAlphaInfo.PremultipliedFirst.rawValue
+        }
+        
+        let context = CGBitmapContextCreate(nil, CGImageGetWidth(image), CGImageGetHeight(image), CGImageGetBitsPerComponent(image), 0, colorSpace, bitmapInfo)
+        
+        CGContextDrawImage(context, CGRect(x: 0, y: 0, width: width, height: height), image)
+        result = CGBitmapContextCreateImage(context)
     }
-    
-    let context = CGBitmapContextCreate(nil, CGImageGetWidth(image), CGImageGetHeight(image), CGImageGetBitsPerComponent(image), 0, colorSpace, bitmapInfo)
-    
-    CGContextDrawImage(context, CGRect(x: 0, y: 0, width: width, height: height), image)
-    return CGBitmapContextCreateImage(context)
+    return result
 }
