@@ -100,7 +100,7 @@ public class AnimatedImagePlayer {
             }
         }
         
-        // update
+        // update   jump frame
         if (index != frameIndex && !miss) || (index == frameIndex && miss) {
             time = nextTime
             frameIndex = index
@@ -142,7 +142,7 @@ public class AnimatedImagePlayer {
     public func moveToFrameAtIndex(index: Int) {
         frameIndex = index % frameCount
         self.time = durations[0...frameIndex].reduce(0) { $0 + $1 }
-        miss = false
+        miss = true
     }
     
     public func moveToTime(var time: NSTimeInterval) {
@@ -157,7 +157,7 @@ public class AnimatedImagePlayer {
         }
         self.frameIndex = index
         self.time = time
-        miss = false
+        miss = true
     }
 
 }
