@@ -28,7 +28,6 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         imageView.xly_setAnimatedImage(animatedGIFImage0)
-        imageView.xly_animatedImagePlayer?.speed = 20
         imageView.xly_animatedImagePlayer?.onTimeElapse = {[unowned self] time in
             self.timeSlider.value = Float(time / self.imageView.xly_animatedImagePlayer!.totalTime)
         }
@@ -48,6 +47,7 @@ class ViewController: UIViewController {
         }
         
         imageView.xly_animatedImagePlayer?.speed = speedStepper.value
+        imageView.xly_animatedImagePlayer?.skipFrames = skipSwitch.on
         imageView.xly_animatedImagePlayer?.onTimeElapse = {[unowned self] time in
             self.timeSlider.value = Float(time / self.imageView.xly_animatedImagePlayer!.totalTime)
         }
