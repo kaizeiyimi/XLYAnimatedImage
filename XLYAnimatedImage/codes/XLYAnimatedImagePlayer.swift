@@ -8,22 +8,6 @@
 
 import UIKit
 
-extension UIImageView {
-    static private var kAnimatedImagePlayerKey = "kaizei.yimi.kAnimatedImagePlayerKey"
-    
-    public func xly_setAnimatedImage(image: AnimatedImage, restartIfSame: Bool = false) {
-        if xly_animatedImagePlayer?.image !== image || restartIfSame {
-            let player = AnimatedImagePlayer(image: image) {[weak self] (image, index) -> Void in
-                self?.image = image
-            }
-            objc_setAssociatedObject(self, &UIImageView.kAnimatedImagePlayerKey, player, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-    }
-    
-    public var xly_animatedImagePlayer: AnimatedImagePlayer? {
-        return objc_getAssociatedObject(self, &UIImageView.kAnimatedImagePlayerKey) as? AnimatedImagePlayer
-    }
-}
 
 private enum ImageState {
     case Image(image: UIImage)
@@ -60,8 +44,9 @@ public class AnimatedImagePlayer {
         }
     }
     
-    private var handler: (image: UIImage, index: Int) -> Void
-    private let image: AnimatedImage
+    let image: AnimatedImage
+    let handler: (image: UIImage, index: Int) -> Void
+    
     private var link: CADisplayLink!
     
     private var spinLock = OS_SPINLOCK_INIT

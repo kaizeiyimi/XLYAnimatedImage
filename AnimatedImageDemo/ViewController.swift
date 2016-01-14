@@ -28,14 +28,14 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         imageView.xly_setAnimatedImage(animatedGIFImage0)
-        imageView.xly_animatedImagePlayer?.onTimeElapse = {[unowned self] time in
-            self.timeSlider.value = Float(time / self.imageView.xly_animatedImagePlayer!.totalTime)
+        imageView.xly_currentAnimatedImagePlayer?.onTimeElapse = {[unowned self] time in
+            self.timeSlider.value = Float(time / self.imageView.xly_currentAnimatedImagePlayer!.totalTime)
         }
     }
     
     @IBAction func changeTime(sender: UISlider) {
-        if let total = imageView.xly_animatedImagePlayer?.totalTime {
-            imageView.xly_animatedImagePlayer?.moveToTime(total * Double(sender.value))
+        if let total = imageView.xly_currentAnimatedImagePlayer?.totalTime {
+            imageView.xly_currentAnimatedImagePlayer?.moveToTime(total * Double(sender.value))
         }
     }
     
@@ -46,11 +46,8 @@ class ViewController: UIViewController {
             imageView.xly_setAnimatedImage(animatedGIFImage1, restartIfSame: restartIfSame)
         }
         
-        imageView.xly_animatedImagePlayer?.speed = speedStepper.value
-        imageView.xly_animatedImagePlayer?.skipFrames = skipSwitch.on
-        imageView.xly_animatedImagePlayer?.onTimeElapse = {[unowned self] time in
-            self.timeSlider.value = Float(time / self.imageView.xly_animatedImagePlayer!.totalTime)
-        }
+        imageView.xly_currentAnimatedImagePlayer?.speed = speedStepper.value
+        imageView.xly_currentAnimatedImagePlayer?.skipFrames = skipSwitch.on
     }
     
     
@@ -58,26 +55,26 @@ class ViewController: UIViewController {
         guard timeSlider.tracking else { return }
         switch sender.state {
         case .Began:
-            imageView.xly_animatedImagePlayer?.paused = true
+            imageView.xly_currentAnimatedImagePlayer?.paused = true
         case .Cancelled, .Ended, .Failed:
-            imageView.xly_animatedImagePlayer?.paused = false
+            imageView.xly_currentAnimatedImagePlayer?.paused = false
         default:
             break
         }
     }
     
     @IBAction func changeSpeed(sender: UIStepper) {
-        imageView.xly_animatedImagePlayer?.speed = sender.value
+        imageView.xly_currentAnimatedImagePlayer?.speed = sender.value
         speedLabel.text = NSString(format: "%.01f", sender.value) as String
     }
     
     @IBAction func togglePause(sender: UITapGestureRecognizer) {
-        if let player = imageView.xly_animatedImagePlayer {
+        if let player = imageView.xly_currentAnimatedImagePlayer {
             player.paused = !player.paused
         }
     }
     @IBAction func toggleSkipFrame(sender: AnyObject) {
-        if let player = imageView.xly_animatedImagePlayer {
+        if let player = imageView.xly_currentAnimatedImagePlayer {
             player.skipFrames = !player.skipFrames
         }
     }
@@ -87,7 +84,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func changeLinkFrameInterval(sender: UIStepper) {
-        imageView.xly_animatedImagePlayer?.displayLinkFrameInterval = Int(sender.value)
+        imageView.xly_currentAnimatedImagePlayer?.displayLinkFrameInterval = Int(sender.value)
         linkFrameIntervalLabel.text = "\(Int(sender.value))"
     }
     

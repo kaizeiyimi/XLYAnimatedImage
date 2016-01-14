@@ -22,6 +22,7 @@
 		F6EC3E7B1C45E3A200BF8580 /* XLYAnimatedImagePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6EC3E7A1C45E3A200BF8580 /* XLYAnimatedImagePlayer.swift */; };
 		F6EC3E7D1C46498800BF8580 /* pk.png in Resources */ = {isa = PBXBuildFile; fileRef = F6EC3E7C1C46498800BF8580 /* pk.png */; };
 		F6F1D9751C478039002FEA1F /* monkey.gif in Resources */ = {isa = PBXBuildFile; fileRef = F6F1D9741C478039002FEA1F /* monkey.gif */; };
+		F6F1D9771C47B302002FEA1F /* XLYAnimatedImageUIKitExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F1D9761C47B302002FEA1F /* XLYAnimatedImageUIKitExtensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +67,7 @@
 		F6EC3E7A1C45E3A200BF8580 /* XLYAnimatedImagePlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XLYAnimatedImagePlayer.swift; sourceTree = "<group>"; };
 		F6EC3E7C1C46498800BF8580 /* pk.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pk.png; sourceTree = "<group>"; };
 		F6F1D9741C478039002FEA1F /* monkey.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = monkey.gif; sourceTree = "<group>"; };
+		F6F1D9761C47B302002FEA1F /* XLYAnimatedImageUIKitExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XLYAnimatedImageUIKitExtensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +122,7 @@
 			children = (
 				F6EC3E551C44954400BF8580 /* XLYAnimatedImage.swift */,
 				F6EC3E7A1C45E3A200BF8580 /* XLYAnimatedImagePlayer.swift */,
+				F6F1D9761C47B302002FEA1F /* XLYAnimatedImageUIKitExtensions.swift */,
 			);
 			path = codes;
 			sourceTree = "<group>";
@@ -260,6 +263,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F6F1D9771C47B302002FEA1F /* XLYAnimatedImageUIKitExtensions.swift in Sources */,
 				F6EC3E561C44954400BF8580 /* XLYAnimatedImage.swift in Sources */,
 				F6EC3E7B1C45E3A200BF8580 /* XLYAnimatedImagePlayer.swift in Sources */,
 			);
