@@ -68,6 +68,7 @@ public class AnimatedImagePlayer {
             link.paused = paused
             handler(image: image.firtImage, index: 0)
             NSNotificationCenter.defaultCenter().addObserver(self, selector: "clearCache:", name: UIApplicationDidReceiveMemoryWarningNotification, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: "clearCache:", name: UIApplicationDidEnterBackgroundNotification, object: nil)
     }
     
     deinit {
@@ -78,7 +79,9 @@ public class AnimatedImagePlayer {
     
     @objc private func clearCache(notify: NSNotification) {
         OSSpinLockLock(&spinLock)
-        let kept = (1...AnimatedImagePlayer.preloadCount).map { (($0 + frameIndex) % frameCount, cache[($0 + frameIndex) % frameCount]) }
+        let kept = (1...AnimatedImagePlayer.preloadCount).map {
+            (($0 + frameIndex) % frameCount, cache[($0 + frameIndex) % frameCount])
+        }
         cache.removeAll(keepCapacity: true)
         kept.forEach { cache[$0.0] = $0.1 }
         OSSpinLockUnlock(&spinLock)
