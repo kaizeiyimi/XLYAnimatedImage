@@ -148,7 +148,6 @@ public class AnimatedImagePlayer {
             } else if !shouldShowNext && !miss {
                 time = nextTime
             } else if shouldShowNext && miss {
-                print("bingo!")
                 showImageAtIndex(frameIndex)
             } else if shouldShowNext && !miss {
                 let nextDuration = durations[(frameIndex + 1) % frameCount]

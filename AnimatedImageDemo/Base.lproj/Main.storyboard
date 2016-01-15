@@ -17,11 +17,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VnJ-0g-Yuf">
-                                <rect key="frame" x="40" y="60" width="240" height="135"/>
+                            <imageView clipsSubviews="YES" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VnJ-0g-Yuf">
+                                <rect key="frame" x="40" y="60" width="240" height="132"/>
                                 <gestureRecognizers/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="135" id="Uvp-7r-LFX"/>
+                                    <constraint firstAttribute="height" constant="132" id="Uvp-7r-LFX"/>
                                     <constraint firstAttribute="width" constant="240" id="eoS-bX-ROx"/>
                                 </constraints>
                                 <userDefinedRuntimeAttributes>
@@ -34,7 +34,7 @@
                                 </connections>
                             </imageView>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="0.999" translatesAutoresizingMaskIntoConstraints="NO" id="6Mm-Yt-H9w">
-                                <rect key="frame" x="18" y="203" width="284" height="31"/>
+                                <rect key="frame" x="18" y="232" width="284" height="31"/>
                                 <gestureRecognizers/>
                                 <connections>
                                     <action selector="changeTime:" destination="BYZ-38-t0r" eventType="valueChanged" id="aLf-Ks-fbe"/>
@@ -42,25 +42,25 @@
                                 </connections>
                             </slider>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="1000" verticalHuggingPriority="251" text="speed" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nze-E1-XVA">
-                                <rect key="frame" x="20" y="246" width="48" height="21"/>
+                                <rect key="frame" x="20" y="275" width="48" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FA7-OT-kWc">
-                                <rect key="frame" x="109" y="342" width="51" height="31"/>
+                                <rect key="frame" x="108" y="370" width="51" height="31"/>
                                 <connections>
                                     <action selector="toggleSkipFrame:" destination="BYZ-38-t0r" eventType="valueChanged" id="vHY-uA-08y"/>
                                 </connections>
                             </switch>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="skip frame" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nUM-5q-kQM">
-                                <rect key="frame" x="20" y="347" width="81" height="20"/>
+                                <rect key="frame" x="20" y="375" width="81" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1.0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KXv-rF-8Ju">
-                                <rect key="frame" x="88" y="246" width="50" height="21"/>
+                                <rect key="frame" x="87" y="275" width="50" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="50" id="OQ7-ob-wHg"/>
                                 </constraints>
@@ -69,7 +69,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minimumValue="0.10000000000000001" maximumValue="4" stepValue="0.10000000000000001" translatesAutoresizingMaskIntoConstraints="NO" id="dK2-1K-p5L">
-                                <rect key="frame" x="158" y="242" width="94" height="29"/>
+                                <rect key="frame" x="157" y="271" width="94" height="29"/>
                                 <connections>
                                     <action selector="changeSpeed:" destination="BYZ-38-t0r" eventType="valueChanged" id="n1a-Lv-THO"/>
                                 </connections>
@@ -85,25 +85,22 @@
                                 </connections>
                             </segmentedControl>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="OMN-b3-EYC">
-                                <rect key="frame" x="194" y="381" width="51" height="31"/>
-                                <connections>
-                                    <action selector="toggleReplayIfSame:" destination="BYZ-38-t0r" eventType="valueChanged" id="V6Q-rE-g8f"/>
-                                </connections>
+                                <rect key="frame" x="194" y="410" width="51" height="31"/>
                             </switch>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="restart if same Object" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vuI-PD-oGJ">
-                                <rect key="frame" x="20" y="386" width="166" height="21"/>
+                                <rect key="frame" x="20" y="415" width="166" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="1000" verticalHuggingPriority="251" text="DisplayLink frameInterval" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zEE-ft-W8f">
-                                <rect key="frame" x="20" y="283" width="193" height="20"/>
+                                <rect key="frame" x="20" y="311" width="193" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BTt-oJ-n1s">
-                                <rect key="frame" x="233" y="283" width="50" height="21"/>
+                                <rect key="frame" x="232" y="311" width="50" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="50" id="ZDO-Ju-1UN"/>
                                 </constraints>
@@ -112,34 +109,58 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minimumValue="1" maximumValue="20" translatesAutoresizingMaskIntoConstraints="NO" id="ZId-65-WBH">
-                                <rect key="frame" x="206" y="311" width="94" height="29"/>
+                                <rect key="frame" x="206" y="339" width="94" height="29"/>
                                 <connections>
                                     <action selector="changeLinkFrameInterval:" destination="BYZ-38-t0r" eventType="valueChanged" id="VZo-Ey-mNN"/>
                                 </connections>
                             </stepper>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="frames" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="La5-3V-II3">
+                                <rect key="frame" x="40" y="200" width="54" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lf4-qm-zbJ">
+                                <rect key="frame" x="102" y="200" width="11" height="21"/>
+                                <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="18"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0/0" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aro-VF-mCz">
+                                <rect key="frame" x="247" y="200" width="33" height="21"/>
+                                <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="18"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="zuS-jx-9fW" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="4JP-29-aW9"/>
                             <constraint firstItem="BTt-oJ-n1s" firstAttribute="centerY" secondItem="zEE-ft-W8f" secondAttribute="centerY" id="4fp-mh-0Te"/>
                             <constraint firstItem="nUM-5q-kQM" firstAttribute="top" secondItem="Nze-E1-XVA" secondAttribute="bottom" constant="80" id="51Q-zD-Ix9"/>
+                            <constraint firstItem="aro-VF-mCz" firstAttribute="trailing" secondItem="VnJ-0g-Yuf" secondAttribute="trailing" id="5Cf-8o-4eT"/>
                             <constraint firstAttribute="trailing" secondItem="6Mm-Yt-H9w" secondAttribute="trailing" constant="20" id="5Qi-Bh-8jr"/>
                             <constraint firstItem="OMN-b3-EYC" firstAttribute="leading" secondItem="vuI-PD-oGJ" secondAttribute="trailing" constant="8" id="9s1-Qm-56g"/>
                             <constraint firstItem="OMN-b3-EYC" firstAttribute="centerY" secondItem="vuI-PD-oGJ" secondAttribute="centerY" id="AF2-Dl-CBg"/>
                             <constraint firstItem="KXv-rF-8Ju" firstAttribute="centerY" secondItem="Nze-E1-XVA" secondAttribute="centerY" id="BLj-C7-GBp"/>
+                            <constraint firstItem="aro-VF-mCz" firstAttribute="top" secondItem="VnJ-0g-Yuf" secondAttribute="bottom" constant="8" id="CSC-uW-G65"/>
                             <constraint firstItem="Nze-E1-XVA" firstAttribute="top" secondItem="6Mm-Yt-H9w" secondAttribute="bottom" constant="13" id="D8R-zh-VLK"/>
                             <constraint firstItem="dK2-1K-p5L" firstAttribute="centerY" secondItem="KXv-rF-8Ju" secondAttribute="centerY" id="DCA-rU-Vy5"/>
+                            <constraint firstItem="lf4-qm-zbJ" firstAttribute="baseline" secondItem="La5-3V-II3" secondAttribute="baseline" id="DbZ-Lj-iKW"/>
                             <constraint firstItem="zEE-ft-W8f" firstAttribute="leading" secondItem="Nze-E1-XVA" secondAttribute="leading" id="EPW-zD-o9J"/>
                             <constraint firstItem="zEE-ft-W8f" firstAttribute="top" secondItem="Nze-E1-XVA" secondAttribute="bottom" constant="16" id="JRn-tI-8GF"/>
                             <constraint firstItem="vuI-PD-oGJ" firstAttribute="leading" secondItem="nUM-5q-kQM" secondAttribute="leading" id="Jgd-P7-IVb"/>
                             <constraint firstItem="VnJ-0g-Yuf" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="40" id="KNx-Z1-zLC"/>
+                            <constraint firstItem="La5-3V-II3" firstAttribute="leading" secondItem="VnJ-0g-Yuf" secondAttribute="leading" id="Lo7-jv-IQ3"/>
+                            <constraint firstItem="lf4-qm-zbJ" firstAttribute="leading" secondItem="La5-3V-II3" secondAttribute="trailing" constant="8" id="O1D-qe-wQH"/>
                             <constraint firstItem="ZId-65-WBH" firstAttribute="top" secondItem="BTt-oJ-n1s" secondAttribute="bottom" constant="7" id="Sq3-Xt-tmi"/>
                             <constraint firstItem="zuS-jx-9fW" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="T26-ZJ-cm6"/>
                             <constraint firstItem="Nze-E1-XVA" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="T5R-U9-Xen"/>
                             <constraint firstItem="KXv-rF-8Ju" firstAttribute="leading" secondItem="Nze-E1-XVA" secondAttribute="trailing" constant="20" id="Twn-aD-p6Y"/>
+                            <constraint firstItem="La5-3V-II3" firstAttribute="top" secondItem="VnJ-0g-Yuf" secondAttribute="bottom" constant="8" id="eMV-lx-gZV"/>
                             <constraint firstAttribute="trailing" secondItem="ZId-65-WBH" secondAttribute="trailing" constant="20" id="fqG-MM-44f"/>
                             <constraint firstItem="nUM-5q-kQM" firstAttribute="leading" secondItem="Nze-E1-XVA" secondAttribute="leading" id="hZe-D1-Hn2"/>
-                            <constraint firstItem="6Mm-Yt-H9w" firstAttribute="top" secondItem="VnJ-0g-Yuf" secondAttribute="bottom" constant="8" id="itA-qy-kvQ"/>
+                            <constraint firstItem="6Mm-Yt-H9w" firstAttribute="top" secondItem="VnJ-0g-Yuf" secondAttribute="bottom" constant="40" id="itA-qy-kvQ"/>
                             <constraint firstItem="dK2-1K-p5L" firstAttribute="leading" secondItem="KXv-rF-8Ju" secondAttribute="trailing" constant="20" id="izG-Ep-78S"/>
                             <constraint firstItem="6Mm-Yt-H9w" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="kun-Lv-nCo"/>
                             <constraint firstItem="VnJ-0g-Yuf" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="mqU-gR-DJA"/>
@@ -151,11 +172,16 @@
                     </view>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
                     <connections>
+                        <outlet property="framesLabel" destination="lf4-qm-zbJ" id="bSy-YU-c0G"/>
                         <outlet property="imageView" destination="VnJ-0g-Yuf" id="cXB-Cd-mYf"/>
                         <outlet property="linkFrameIntervalLabel" destination="BTt-oJ-n1s" id="04W-on-Rvd"/>
+                        <outlet property="linkIntervalStepper" destination="ZId-65-WBH" id="BHI-7H-l0E"/>
+                        <outlet property="replayIfSameSwitch" destination="OMN-b3-EYC" id="NMl-is-lsX"/>
+                        <outlet property="segmentedControl" destination="zuS-jx-9fW" id="46c-2n-ncV"/>
                         <outlet property="skipSwitch" destination="FA7-OT-kWc" id="dWz-qv-Vq3"/>
                         <outlet property="speedLabel" destination="KXv-rF-8Ju" id="ATO-wD-RV8"/>
                         <outlet property="speedStepper" destination="dK2-1K-p5L" id="LUs-YX-eZo"/>
+                        <outlet property="timeLabel" destination="aro-VF-mCz" id="Rnv-TN-VyT"/>
                         <outlet property="timeSlider" destination="6Mm-Yt-H9w" id="Xww-2g-OCy"/>
                     </connections>
                 </viewController>
