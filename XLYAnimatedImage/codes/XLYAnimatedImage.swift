@@ -24,8 +24,8 @@ public protocol AnimatedImage: class {
 
 
 public class AnimatedGIFImage: AnimatedImage {
-    public struct InvalidDataError: ErrorType {
-        public let description = "Data is not a valid GIF data."
+    struct InvalidDataError: ErrorType {
+        let description = "Data is not a valid GIF data."
     }
     
     static func getGIFSourceDurations(source: CGImageSource) throws -> [NSTimeInterval] {

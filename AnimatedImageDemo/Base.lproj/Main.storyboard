@@ -17,7 +17,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VnJ-0g-Yuf">
+                            <imageView clipsSubviews="YES" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VnJ-0g-Yuf">
                                 <rect key="frame" x="40" y="60" width="240" height="135"/>
                                 <gestureRecognizers/>
                                 <constraints>
@@ -87,7 +87,7 @@
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="OMN-b3-EYC">
                                 <rect key="frame" x="194" y="381" width="51" height="31"/>
                                 <connections>
-                                    <action selector="toggleRestartIfSame:" destination="BYZ-38-t0r" eventType="valueChanged" id="V6Q-rE-g8f"/>
+                                    <action selector="toggleReplayIfSame:" destination="BYZ-38-t0r" eventType="valueChanged" id="V6Q-rE-g8f"/>
                                 </connections>
                             </switch>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="restart if same Object" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vuI-PD-oGJ">

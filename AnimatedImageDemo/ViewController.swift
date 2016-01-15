@@ -21,14 +21,13 @@ class ViewController: UIViewController {
     
     
     let animatedGIFImage0 = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("niconiconi@2x", ofType: "gif")!)!)
-    let animatedGIFImage1 = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("guo", ofType: "gif")!)!)
-    var restartIfSame = false
+    let animatedGIFImage1 = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("guo", ofType: "gif")!)!, scale: 1)
+    var replay = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        imageView.xly_setAnimatedImage(animatedGIFImage0)
-        imageView.xly_currentAnimatedImagePlayer?.onTimeElapse = {[unowned self] time in
+        imageView.xly_setAnimatedImage(animatedGIFImage0).onTimeElapse = {[unowned self] time in
             self.timeSlider.value = Float(time / self.imageView.xly_currentAnimatedImagePlayer!.totalTime)
         }
     }
@@ -41,9 +40,9 @@ class ViewController: UIViewController {
     
     @IBAction func changeImage(sender: UISegmentedControl) {
         if sender.selectedSegmentIndex == 0 {
-            imageView.xly_setAnimatedImage(animatedGIFImage0, restartIfSame: restartIfSame)
+            imageView.xly_setAnimatedImage(animatedGIFImage0, replay: replay)
         } else if sender.selectedSegmentIndex == 1 {
-            imageView.xly_setAnimatedImage(animatedGIFImage1, restartIfSame: restartIfSame)
+            imageView.xly_setAnimatedImage(animatedGIFImage1, replay: replay)
         }
         
         imageView.xly_currentAnimatedImagePlayer?.speed = speedStepper.value
@@ -79,8 +78,8 @@ class ViewController: UIViewController {
         }
     }
 
-    @IBAction func toggleRestartIfSame(sender: AnyObject) {
-        restartIfSame = !restartIfSame
+    @IBAction func toggleReplayIfSame(sender: AnyObject) {
+        replay = !replay
     }
     
     @IBAction func changeLinkFrameInterval(sender: UIStepper) {
