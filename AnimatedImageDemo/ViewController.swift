@@ -47,12 +47,14 @@ class ViewController: UIViewController {
             let animatedGIFImage0 = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("shot@2x", ofType: "gif")!)!, scale: 2)
             let animatedGIFImage1 = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("cat@2x", ofType: "gif")!)!, scale: 2)
             images = [animatedGIFImage0, animatedGIFImage1]
+            imageView.contentMode = .Center
         case .FrameImages:
             segmentedControl.removeSegmentAtIndex(1, animated: false)
 //            images = [AnimatedFrameImage(images: (0...9).map({ UIImage(named: "qiaoba\($0)")! }), durations: (0...9).map({_ in 0.1}))]
             // equals to the above line
             let image = UIImage.animatedImageWithImages((0...9).map({ UIImage(named: "qiaoba\($0)")! }), duration: 0.1)!
             images = [AnimatedFrameImage(animatedUIImage: image)]
+            imageView.contentMode = .ScaleAspectFit
         }
         segmentedControl.selectedSegmentIndex = UISegmentedControlNoSegment
         
