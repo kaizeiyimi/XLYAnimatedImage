@@ -18,7 +18,6 @@ public class AnimatedImagePlayer {
     
     static private let preloadCount = 2
     
-    public let scale: CGFloat
     public var speed: Double = 1
     public var paused: Bool = false {
         didSet {
@@ -31,6 +30,8 @@ public class AnimatedImagePlayer {
         get { return link.frameInterval }
         set { link.frameInterval = newValue }
     }
+    
+    public var scale: CGFloat { return image.scale }
     public var frameCount: Int { return image.frameCount }
     public var totalTime: NSTimeInterval { return image.totalTime }
     public var durations: [NSTimeInterval] { return image.durations }
@@ -65,12 +66,10 @@ public class AnimatedImagePlayer {
     
     private let operationQueue = NSOperationQueue()
     
-    public init(scale: CGFloat = UIScreen.mainScreen().scale,
+    public init(image: AnimatedImage,
         runloopMode: String = NSRunLoopCommonModes,
-        image: AnimatedImage,
         handler: (image: UIImage, index: Int) -> Void) {
             self.handler = handler
-            self.scale = scale
             self.image = image
             link = CADisplayLink(target: WeakWrapper(self), selector: "linkFired:")
             link.addToRunLoop(NSRunLoop.mainRunLoop(), forMode: runloopMode)

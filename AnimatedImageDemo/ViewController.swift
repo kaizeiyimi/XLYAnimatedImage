@@ -23,6 +23,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var linkFrameIntervalLabel: UILabel!
     
     
+    // default scale is screen's scale.
     let animatedGIFImage0 = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("shot@2x", ofType: "gif")!)!, scale: 2)
     let animatedGIFImage1 = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("cat@2x", ofType: "gif")!)!, scale: 2)
     
