@@ -9,6 +9,18 @@
 import UIKit
 import XLYAnimatedImage
 
+enum PlayType {
+    case GIFImage
+    case FrameImages
+    
+    var description: String {
+        switch self {
+        case .GIFImage: return "GIF"
+        case .FrameImages: return "Frames"
+        }
+    }
+}
+
 class ViewController: UIViewController {
 
     @IBOutlet weak var imageView: UIImageView!
@@ -22,20 +34,33 @@ class ViewController: UIViewController {
     @IBOutlet weak var speedLabel: UILabel!
     @IBOutlet weak var linkFrameIntervalLabel: UILabel!
     
-    
-    // default scale is screen's scale.
-    let animatedGIFImage0 = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("shot@2x", ofType: "gif")!)!, scale: 2)
-    let animatedGIFImage1 = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("cat@2x", ofType: "gif")!)!, scale: 2)
+    var type: PlayType!
+    private var images: [AnimatedImage]!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        guard let type = type else { return }
+        switch type {
+        case .GIFImage:
+            // default scale is screen's scale.
+            let animatedGIFImage0 = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("shot@2x", ofType: "gif")!)!, scale: 2)
+            let animatedGIFImage1 = AnimatedGIFImage(data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("cat@2x", ofType: "gif")!)!, scale: 2)
+            images = [animatedGIFImage0, animatedGIFImage1]
+        case .FrameImages:
+            segmentedControl.removeSegmentAtIndex(1, animated: false)
+//            images = [AnimatedFrameImage(images: (0...9).map({ UIImage(named: "qiaoba\($0)")! }), durations: (0...9).map({_ in 0.1}))]
+            // equals to the above line
+            let image = UIImage.animatedImageWithImages((0...9).map({ UIImage(named: "qiaoba\($0)")! }), duration: 0.1)!
+            images = [AnimatedFrameImage(animatedUIImage: image)]
+        }
         segmentedControl.selectedSegmentIndex = UISegmentedControlNoSegment
         
-        imageView.xly_setAnimatedImage(animatedGIFImage0).onTimeElapse = {[unowned self] time in
+        imageView.xly_setAnimatedImage(images[0]).onTimeElapse = {[unowned self] time in
             self.timeSlider.value = Float(time / self.imageView.xly_animatedImagePlayer!.totalTime)
             self.timeLabel.text = NSString(format: "%.02f/%.02f", time, self.imageView.xly_animatedImagePlayer!.totalTime) as String
         }
-        framesLabel.text = "\(animatedGIFImage0.frameCount)"
+        framesLabel.text = "\(images[0].frameCount)"
     }
     
     @IBAction func changeTime(sender: UISlider) {
@@ -45,7 +70,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func changeImage(sender: UISegmentedControl) {
-        let image = sender.selectedSegmentIndex == 0 ? animatedGIFImage0 : animatedGIFImage1
+        let image = sender.selectedSegmentIndex == 0 ? images[0] : images[1]
         imageView.xly_setAnimatedImage(image, replay: replayIfSameSwitch.on)
         framesLabel.text = "\(image.frameCount)"
     }

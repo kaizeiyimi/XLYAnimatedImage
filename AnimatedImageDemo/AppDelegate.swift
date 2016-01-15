@@ -16,6 +16,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
+        
+        if let tabbar = window?.rootViewController as? UITabBarController, viewControllers = tabbar.viewControllers {
+            zip(viewControllers, [PlayType.GIFImage, PlayType.FrameImages]).forEach {
+                ($0 as? ViewController)?.type = $1
+                $0.tabBarItem.title = $1.description
+            }
+        }
+        
         return true
     }
 
