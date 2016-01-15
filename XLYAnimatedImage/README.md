@@ -29,7 +29,7 @@ let player = AnimatedImagePlayer(image: animatedImage) {
 // config time elapse call back
 player.onTimeElapse = {
     [unowned self] time in
-    self.timeSlider.value = Float(time / self.imageView.xly_currentAnimatedImagePlayer!.totalTime)
+    self.timeSlider.value = Float(time / self.imageView.xly_animatedImagePlayer!.totalTime)
 }
 
 ```
@@ -41,7 +41,7 @@ or use a helper extension method on UIImageView.
 // set replay to true will replay animatedImage even if it's same object.
 let player = xly_setAnimatedImage(animatedImage, replay: true).onTimeElapse = {
     [unowned self] time in
-    self.timeSlider.value = Float(time / self.imageView.xly_currentAnimatedImagePlayer!.totalTime)
+    self.timeSlider.value = Float(time / self.imageView.xly_animatedImagePlayer!.totalTime)
 }
 
 player.speed = xxx

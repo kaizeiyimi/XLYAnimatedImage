@@ -13,25 +13,18 @@ extension UIImageView {
     static private var kAnimatedImagePlayerKey = "kaizei.yimi.kAnimatedImagePlayerKey"
     
     public func xly_setAnimatedImage(image: AnimatedImage, replay: Bool = false) -> AnimatedImagePlayer {
-        let lastPlayer = xly_currentAnimatedImagePlayer
-        if lastPlayer?.image === image {
-            replay ? lastPlayer?.moveToTime(0) : nil
-        } else if lastPlayer?.image !== image {
-            var handler = xly_currentAnimatedImagePlayer?.handler   // for now, ?? cannot operate on closure
-            if handler == nil {
-                handler = {[weak self] (image: UIImage, index: Int) -> Void in
-                    self?.image = image
-                }
+        if let player = xly_animatedImagePlayer {
+            player.setImage(image, replay: replay)
+        } else {
+            let player = AnimatedImagePlayer(image: image) {[weak self] (image, index) -> Void in
+                self?.image = image
             }
-            let player = AnimatedImagePlayer(image: image, handler: handler!)
-            player.onTimeElapse = lastPlayer?.onTimeElapse
-            xly_currentAnimatedImagePlayer = player
+            xly_animatedImagePlayer = player
         }
-        
-        return xly_currentAnimatedImagePlayer!
+        return xly_animatedImagePlayer!
     }
     
-    public var xly_currentAnimatedImagePlayer: AnimatedImagePlayer? {
+    public var xly_animatedImagePlayer: AnimatedImagePlayer? {
         get { return objc_getAssociatedObject(self, &UIImageView.kAnimatedImagePlayerKey) as? AnimatedImagePlayer }
         set { objc_setAssociatedObject(self, &UIImageView.kAnimatedImagePlayerKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }

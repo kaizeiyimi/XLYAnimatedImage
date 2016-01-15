@@ -17,6 +17,16 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" momentary="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zuS-jx-9fW">
+                                <rect key="frame" x="100" y="20" width="121" height="29"/>
+                                <segments>
+                                    <segment title="First"/>
+                                    <segment title="Second"/>
+                                </segments>
+                                <connections>
+                                    <action selector="changeImage:" destination="BYZ-38-t0r" eventType="valueChanged" id="zC8-Ex-E84"/>
+                                </connections>
+                            </segmentedControl>
                             <imageView clipsSubviews="YES" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VnJ-0g-Yuf">
                                 <rect key="frame" x="40" y="60" width="240" height="132"/>
                                 <gestureRecognizers/>
@@ -74,16 +84,6 @@
                                     <action selector="changeSpeed:" destination="BYZ-38-t0r" eventType="valueChanged" id="n1a-Lv-THO"/>
                                 </connections>
                             </stepper>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" momentary="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zuS-jx-9fW">
-                                <rect key="frame" x="100" y="20" width="121" height="29"/>
-                                <segments>
-                                    <segment title="First"/>
-                                    <segment title="Second"/>
-                                </segments>
-                                <connections>
-                                    <action selector="changeImage:" destination="BYZ-38-t0r" eventType="valueChanged" id="zC8-Ex-E84"/>
-                                </connections>
-                            </segmentedControl>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="OMN-b3-EYC">
                                 <rect key="frame" x="194" y="410" width="51" height="31"/>
                             </switch>
@@ -175,12 +175,9 @@
                         <outlet property="framesLabel" destination="lf4-qm-zbJ" id="bSy-YU-c0G"/>
                         <outlet property="imageView" destination="VnJ-0g-Yuf" id="cXB-Cd-mYf"/>
                         <outlet property="linkFrameIntervalLabel" destination="BTt-oJ-n1s" id="04W-on-Rvd"/>
-                        <outlet property="linkIntervalStepper" destination="ZId-65-WBH" id="BHI-7H-l0E"/>
                         <outlet property="replayIfSameSwitch" destination="OMN-b3-EYC" id="NMl-is-lsX"/>
                         <outlet property="segmentedControl" destination="zuS-jx-9fW" id="46c-2n-ncV"/>
-                        <outlet property="skipSwitch" destination="FA7-OT-kWc" id="dWz-qv-Vq3"/>
                         <outlet property="speedLabel" destination="KXv-rF-8Ju" id="ATO-wD-RV8"/>
-                        <outlet property="speedStepper" destination="dK2-1K-p5L" id="LUs-YX-eZo"/>
                         <outlet property="timeLabel" destination="aro-VF-mCz" id="Rnv-TN-VyT"/>
                         <outlet property="timeSlider" destination="6Mm-Yt-H9w" id="Xww-2g-OCy"/>
                     </connections>
