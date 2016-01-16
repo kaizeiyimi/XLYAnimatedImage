@@ -50,7 +50,7 @@ class ViewController: UIViewController {
             imageView.contentMode = .Center
         case .FrameImages:
             segmentedControl.removeSegmentAtIndex(1, animated: false)
-//            images = [AnimatedFrameImage(images: (0...9).map({ UIImage(named: "qiaoba\($0)")! }), durations: (0...9).map({_ in 0.1}))]
+//            images = [AnimatedFrameImage(images: (0...9).map({ UIImage(named: "qiaoba\($0)")! }), durations: Array<NSTimeInterval>(count: 10, repeatedValue: 0.1))]
             // equals to the above line
             let image = UIImage.animatedImageWithImages((0...9).map({ UIImage(named: "qiaoba\($0)")! }), duration: 0.1)!
             images = [AnimatedFrameImage(animatedUIImage: image)]

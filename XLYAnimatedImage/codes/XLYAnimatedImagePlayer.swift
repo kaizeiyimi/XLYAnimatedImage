@@ -16,12 +16,15 @@ private enum ImageState {
 
 public class AnimatedImagePlayer {
     
-    static private let preloadCount = 2
+    static private let preloadCount = 2 // preload 2 frames is enough now.
     
     public var speed: Double = 1
-    public var paused: Bool = false {
-        didSet {
-            link?.paused = paused
+    public var paused: Bool {
+        get { return link.paused }
+        set {
+            if frameCount >= 2 {
+                link.paused = newValue
+            }
         }
     }
     
@@ -74,7 +77,7 @@ public class AnimatedImagePlayer {
             link = CADisplayLink(target: WeakWrapper(self), selector: "linkFired:")
             link.addToRunLoop(NSRunLoop.mainRunLoop(), forMode: runloopMode)
             link.frameInterval = 1
-            link.paused = paused
+            link.paused = image.frameCount < 2
             handler(image: image.firtImage, index: 0)
             NSNotificationCenter.defaultCenter().addObserver(self, selector: "clearCache:", name: UIApplicationDidReceiveMemoryWarningNotification, object: nil)
             NSNotificationCenter.defaultCenter().addObserver(self, selector: "clearCache:", name: UIApplicationDidEnterBackgroundNotification, object: nil)
@@ -149,6 +152,7 @@ public class AnimatedImagePlayer {
                 let nextDuration = durations[(frameIndex + 1) % frameCount]
                 time = min(nextTime, frameEndTime + nextDuration)
                 frameIndex = (frameIndex + 1) % frameCount
+                if frameIndex == 0 { time = min(nextTime, durations[0]) }
                 showImageAtIndex(frameIndex)
             }
         }

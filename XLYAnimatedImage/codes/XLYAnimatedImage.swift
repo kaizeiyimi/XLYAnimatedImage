@@ -141,19 +141,22 @@ public class AnimatedFrameImage: AnimatedImage {
     
     public convenience init(animatedUIImage image: UIImage) {
         if let images = image.images {
-            self.init(images: images, durations: (0..<images.count).map{_ in image.duration})
+            self.init(images: images, durations: Array<NSTimeInterval>(count: images.count, repeatedValue: image.duration))
         } else {
             self.init(images: [], durations: [])
         }
     }
         
-    public init(images: [UIImage], durations: [NSTimeInterval]) {
+    public init(images: [UIImage], var durations: [NSTimeInterval]) {
         if images.count == 0 && durations.count == 0 {
             self.images = [UIImage()]
             self.durations = [kDefaultDurationPerFrame]
             self.totalTime = kDefaultDurationPerFrame
             scale = self.images[0].scale
         } else {
+            if durations.count < images.count {
+                durations.appendContentsOf(Array<NSTimeInterval>(count: images.count - durations.count, repeatedValue: kDefaultDurationPerFrame))
+            }
             let validImages = zip(images, durations).map { (image: $0, duration: $1 < kMinDurationPerFrame ? kDefaultDurationPerFrame : $1) }
             self.images = validImages.map { $0.image }
             self.durations = validImages.map { $0.duration }

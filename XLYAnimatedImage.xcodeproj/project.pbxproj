@@ -47,10 +47,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		F69340231C48CDAF00F85117 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		F69340241C48CDAF00F85117 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F693402B1C48D88E00F85117 /* shot@2x.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "shot@2x.gif"; sourceTree = "<group>"; };
 		F693402D1C48D89C00F85117 /* cat@2x.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "cat@2x.gif"; sourceTree = "<group>"; };
+		F6CF85971C4A65460027DD12 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
+		F6CF85981C4A65460027DD12 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		F6EC3E491C44951500BF8580 /* XLYAnimatedImage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = XLYAnimatedImage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6EC3E4C1C44951500BF8580 /* XLYAnimatedImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XLYAnimatedImage.h; sourceTree = "<group>"; };
 		F6EC3E4E1C44951500BF8580 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -108,9 +108,9 @@
 			children = (
 				F6EC3E541C44952C00BF8580 /* codes */,
 				F6EC3E4C1C44951500BF8580 /* XLYAnimatedImage.h */,
+				F6CF85971C4A65460027DD12 /* LICENSE */,
+				F6CF85981C4A65460027DD12 /* README.md */,
 				F6EC3E4E1C44951500BF8580 /* Info.plist */,
-				F69340231C48CDAF00F85117 /* LICENSE */,
-				F69340241C48CDAF00F85117 /* README.md */,
 			);
 			path = XLYAnimatedImage;
 			sourceTree = "<group>";

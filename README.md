@@ -2,6 +2,8 @@
 
 play animated images using player. Easy to associated with any thing which can draw UIImage.
 
+support **speed**, **skipFrames**, **displayLinkFrameInterval** config. Auto preload and clear cache if needed.
+
 ### swift 2 ###
 
 swift 2 is required. And better use framework.
@@ -44,7 +46,9 @@ let player = xly_setAnimatedImage(animatedImage, replay: true).onTimeElapse = {
     self.timeSlider.value = Float(time / self.imageView.xly_animatedImagePlayer!.totalTime)
 }
 
-player.speed = xxx
+player.speed = 2
+player.skipFrames = true
+player.displayLinkFrameInterval = 2
 
 ```
 
