@@ -143,7 +143,7 @@ public class AnimatedFrameImage: AnimatedImage {
         if let images = image.images {
             self.init(images: images, durations: Array<NSTimeInterval>(count: images.count, repeatedValue: image.duration))
         } else {
-            self.init(images: [], durations: [])
+            self.init(images: [image], durations: [image.duration])
         }
     }
         
