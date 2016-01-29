@@ -43,6 +43,8 @@ public class AnimatedImagePlayer {
         }
     }
     
+    public private(set) var currentImage: UIImage!
+    
     public var image: AnimatedImage? {
         didSet {
             if image !== oldValue {
@@ -54,14 +56,19 @@ public class AnimatedImagePlayer {
                 if let image = image {
                     display(image: image.firtImage, index: 0)
                     link.paused = image.frameCount < 2
+                    currentImage = image.firtImage
                 } else {
                     stop()
+                }
+            } else {
+                if let image = currentImage {
+                    display(image: image, index: frameIndex)
                 }
             }
         }
     }
-    let display: (image: UIImage, index: Int) -> Void
-    let stop: () -> Void
+    var display: (image: UIImage, index: Int) -> Void
+    var stop: () -> Void
     
     private var link: CADisplayLink!
     
@@ -91,6 +98,53 @@ public class AnimatedImagePlayer {
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
+    // MARK: Public
+    public func moveToFrameAtIndex(index: Int) {
+        guard let image = image where image.frameCount >= 2 else {
+            self.frameIndex = 0
+            self.time = 0
+            return
+        }
+        
+        frameIndex = index % image.frameCount
+        self.time = image.durations[0...frameIndex].reduce(0) { $0 + $1 }
+        miss = true
+        update(self.time, loadImmediately: true)
+    }
+    
+    public func moveToTime(var time: NSTimeInterval) {
+        guard let image = image where image.frameCount >= 2 else {
+            self.frameIndex = 0
+            self.time = 0
+            return
+        }
+        
+        time = time - floor(time / image.totalTime) * image.totalTime
+        var index = 0
+        for var temp: NSTimeInterval = 0, i = 0; i < image.frameCount; ++i {
+            temp += image.durations[i]
+            if time < temp {
+                index = i
+                break
+            }
+        }
+        self.frameIndex = index
+        self.time = time
+        miss = true
+        update(self.time, loadImmediately: true)
+    }
+    
+    public func setImage(image: AnimatedImage?, replay: Bool = false) {
+        self.image = image
+        if replay { moveToTime(0) }
+    }
+    
+    public func replaceHandlers(display display: (image: UIImage, index: Int) -> Void, stop: () -> Void) {
+        self.display = display
+        self.stop = stop
+    }
+    
+    // MARK: private
     @objc private func clearCache(notify: NSNotification) {
         OSSpinLockLock(&spinLock)
         if let frameCount = image?.frameCount {
@@ -127,6 +181,7 @@ public class AnimatedImagePlayer {
             if let state = state {
                 miss = false
                 if case .Image(let image) = state {
+                    currentImage = image
                     display(image: image, index: index)
                 }
             } else {
@@ -218,46 +273,6 @@ public class AnimatedImagePlayer {
             
             operationQueue.addOperation(operation)
         }
-    }
-    
-    public func moveToFrameAtIndex(index: Int) {
-        guard let image = image where image.frameCount >= 2 else {
-            self.frameIndex = 0
-            self.time = 0
-            return
-        }
-        
-        frameIndex = index % image.frameCount
-        self.time = image.durations[0...frameIndex].reduce(0) { $0 + $1 }
-        miss = true
-        update(self.time, loadImmediately: true)
-    }
-    
-    public func moveToTime(var time: NSTimeInterval) {
-        guard let image = image where image.frameCount >= 2 else {
-            self.frameIndex = 0
-            self.time = 0
-            return
-        }
-        
-        time = time - floor(time / image.totalTime) * image.totalTime
-        var index = 0
-        for var temp: NSTimeInterval = 0, i = 0; i < image.frameCount; ++i {
-            temp += image.durations[i]
-            if time < temp {
-                index = i
-                break
-            }
-        }
-        self.frameIndex = index
-        self.time = time
-        miss = true
-        update(self.time, loadImmediately: true)
-    }
-    
-    public func setImage(image: AnimatedImage?, replay: Bool = false) {
-        self.image = image
-        if replay { moveToTime(0) }
     }
 
 }
