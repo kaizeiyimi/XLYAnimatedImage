@@ -20,19 +20,30 @@ import XLYAnimatedImage
 let data = ... // load from some where, network or ...
 
 // scale has a default value equals to screen scale, or you can specify it.
-let animatedImage = AnimatedGIFImage(data: data, scale: default)
+let animatedImage = AnimatedDataImage(data: data, scale: default)
 
 // setup player and keep a reference.
-let player = AnimatedImagePlayer(image: animatedImage) {
-    image, index in
-    someImageView.image = image
+let player = AnimatedImagePlayer {
+image, index in
+someImageView.image = image
 }
 
-// config time elapse call back
+// setup image
+player.image = animatedImage
+
+// set replay to true will replay animatedImage even if it's same object.
+player.setImage(image, replay: true)
+
+// config player
 player.onTimeElapse = {
-    [unowned self] time in
-    self.timeSlider.value = Float(time / self.imageView.xly_animatedImagePlayer!.totalTime)
+[unowned self] time in
+self.timeSlider.value = Float(time / self.imageView.xly_animatedImagePlayer!.totalTime)
 }
+
+player.speed = 2
+player.skipFrames = true
+player.displayLinkFrameInterval = 2
+
 
 ```
 
@@ -40,15 +51,7 @@ or use a helper extension method on UIImageView.
 
 ```swift
 
-// set replay to true will replay animatedImage even if it's same object.
-let player = xly_setAnimatedImage(animatedImage, replay: true).onTimeElapse = {
-    [unowned self] time in
-    self.timeSlider.value = Float(time / self.imageView.xly_animatedImagePlayer!.totalTime)
-}
-
-player.speed = 2
-player.skipFrames = true
-player.displayLinkFrameInterval = 2
+imageView.xly_setAnimatedImage(animatedImage, replay: true)
 
 ```
 

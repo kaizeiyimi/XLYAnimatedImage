@@ -22,7 +22,7 @@ public class AnimatedImagePlayer {
     public var paused: Bool {
         get { return link.paused }
         set {
-            if frameCount >= 2 {
+            if let image = self.image where image.frameCount >= 2 {
                 link.paused = newValue
             }
         }
@@ -34,11 +34,6 @@ public class AnimatedImagePlayer {
         set { link.frameInterval = newValue }
     }
     
-    public var scale: CGFloat { return image.scale }
-    public var frameCount: Int { return image.frameCount }
-    public var totalTime: NSTimeInterval { return image.totalTime }
-    public var durations: [NSTimeInterval] { return image.durations }
-    
     public var onTimeElapse: (NSTimeInterval -> Void)?
     
     public private(set) var frameIndex: Int = 0
@@ -48,7 +43,7 @@ public class AnimatedImagePlayer {
         }
     }
     
-    public var image: AnimatedImage {
+    public var image: AnimatedImage? {
         didSet {
             if image !== oldValue {
                 OSSpinLockLock(&spinLock)
@@ -56,6 +51,10 @@ public class AnimatedImagePlayer {
                 cache.removeAll()
                 OSSpinLockUnlock(&spinLock)
                 moveToTime(0)
+                if let image = image {
+                    handler(image: image.firtImage, index: 0)
+                    link.paused = image.frameCount < 2
+                }
             }
         }
     }
@@ -69,16 +68,13 @@ public class AnimatedImagePlayer {
     
     private let operationQueue = NSOperationQueue()
     
-    public init(image: AnimatedImage,
-        runloopMode: String = NSRunLoopCommonModes,
+    public init(runloopMode: String = NSRunLoopCommonModes,
         handler: (image: UIImage, index: Int) -> Void) {
             self.handler = handler
-            self.image = image
             link = CADisplayLink(target: WeakWrapper(self), selector: "linkFired:")
             link.addToRunLoop(NSRunLoop.mainRunLoop(), forMode: runloopMode)
             link.frameInterval = 1
-            link.paused = image.frameCount < 2
-            handler(image: image.firtImage, index: 0)
+            link.paused = true
             NSNotificationCenter.defaultCenter().addObserver(self, selector: "clearCache:", name: UIApplicationDidReceiveMemoryWarningNotification, object: nil)
             NSNotificationCenter.defaultCenter().addObserver(self, selector: "clearCache:", name: UIApplicationDidEnterBackgroundNotification, object: nil)
     }
@@ -91,20 +87,32 @@ public class AnimatedImagePlayer {
     
     @objc private func clearCache(notify: NSNotification) {
         OSSpinLockLock(&spinLock)
-        let kept = (1...AnimatedImagePlayer.preloadCount).map {
-            (($0 + frameIndex) % frameCount, cache[($0 + frameIndex) % frameCount])
+        if let frameCount = image?.frameCount {
+            let kept = (1...AnimatedImagePlayer.preloadCount).map {
+                (($0 + frameIndex) % frameCount, cache[($0 + frameIndex) % frameCount])
+            }
+            cache.removeAll(keepCapacity: true)
+            kept.forEach { cache[$0.0] = $0.1 }
+        } else {
+            cache.removeAll()
         }
-        cache.removeAll(keepCapacity: true)
-        kept.forEach { cache[$0.0] = $0.1 }
         OSSpinLockUnlock(&spinLock)
     }
     
     @objc private func linkFired(link: CADisplayLink) {
-        let nextTime = time - floor(time / totalTime) * totalTime + link.duration * Double(link.frameInterval) * speed
+        guard let image = image where image.frameCount >= 2 else {
+            link.paused = true
+            self.frameIndex = 0
+            self.time = 0
+            return
+        }
+        let nextTime = time - floor(time / image.totalTime) * image.totalTime + link.duration * Double(link.frameInterval) * speed
         update(nextTime)
     }
     
     private func update(nextTime: NSTimeInterval, loadImmediately: Bool = false) {
+        guard let image = image else { return }
+        
         // load image at index. only fetch from cache
         func showImageAtIndex(index: Int) {
             OSSpinLockLock(&spinLock)
@@ -122,8 +130,8 @@ public class AnimatedImagePlayer {
         
         if skipFrames {
             var index = 0
-            for var temp: NSTimeInterval = 0, i = 0; i < frameCount; ++i {
-                temp += durations[i]
+            for var temp: NSTimeInterval = 0, i = 0; i < image.frameCount; ++i {
+                temp += image.durations[i]
                 if nextTime < temp {
                     index = i
                     break
@@ -139,8 +147,8 @@ public class AnimatedImagePlayer {
                 showImageAtIndex(frameIndex)
             }
         } else {
-            let frameEndTime = durations[0...frameIndex].reduce(0){ $0 + $1 }
-            let shouldShowNext = (nextTime >= frameEndTime) || (nextTime < frameEndTime - durations[frameIndex])
+            let frameEndTime = image.durations[0...frameIndex].reduce(0){ $0 + $1 }
+            let shouldShowNext = (nextTime >= frameEndTime) || (nextTime < frameEndTime - image.durations[frameIndex])
             if !shouldShowNext && miss {
                 time = nextTime
                 showImageAtIndex(frameIndex)
@@ -149,24 +157,24 @@ public class AnimatedImagePlayer {
             } else if shouldShowNext && miss {
                 showImageAtIndex(frameIndex)
             } else if shouldShowNext && !miss {
-                let nextDuration = durations[(frameIndex + 1) % frameCount]
+                let nextDuration = image.durations[(frameIndex + 1) % image.frameCount]
                 time = min(nextTime, frameEndTime + nextDuration)
-                frameIndex = (frameIndex + 1) % frameCount
-                if frameIndex == 0 { time = min(nextTime, durations[0]) }
+                frameIndex = (frameIndex + 1) % image.frameCount
+                if frameIndex == 0 { time = min(nextTime, image.durations[0]) }
                 showImageAtIndex(frameIndex)
             }
         }
         
         // preload
-        if cache.count < frameCount && (operationQueue.operationCount == 0 || loadImmediately) {
+        if cache.count < image.frameCount && (operationQueue.operationCount == 0 || loadImmediately) {
             if loadImmediately {
                 operationQueue.cancelAllOperations()
             }
             
             let operation = NSBlockOperation()
             operation.addExecutionBlock
-                {[weak self, unowned operation, frameCount = frameCount, current = frameIndex,
-                    max = (frameIndex + AnimatedImagePlayer.preloadCount) % frameCount] in
+                {[weak self, unowned operation, frameCount = image.frameCount, current = frameIndex,
+                    max = (frameIndex + AnimatedImagePlayer.preloadCount) % image.frameCount] in
                     if let this = self {
                         if operation.cancelled { return }
                         let indies = NSMutableIndexSet()
@@ -183,7 +191,7 @@ public class AnimatedImagePlayer {
                             let state = this.cache[index]
                             OSSpinLockUnlock(&this.spinLock)
                             if state == nil {
-                                let image = this.image.imageAtIndex(index)
+                                let image = image.imageAtIndex(index)
                                 OSSpinLockLock(&this.spinLock)
                                 if !operation.cancelled {
                                     this.cache[index] = image == nil ? .None : .Image(image: image!)
@@ -207,17 +215,29 @@ public class AnimatedImagePlayer {
     }
     
     public func moveToFrameAtIndex(index: Int) {
-        frameIndex = index % frameCount
-        self.time = durations[0...frameIndex].reduce(0) { $0 + $1 }
+        guard let image = image where image.frameCount >= 2 else {
+            self.frameIndex = 0
+            self.time = 0
+            return
+        }
+        
+        frameIndex = index % image.frameCount
+        self.time = image.durations[0...frameIndex].reduce(0) { $0 + $1 }
         miss = true
         update(self.time, loadImmediately: true)
     }
     
     public func moveToTime(var time: NSTimeInterval) {
-        time = time - floor(time / totalTime) * totalTime
+        guard let image = image where image.frameCount >= 2 else {
+            self.frameIndex = 0
+            self.time = 0
+            return
+        }
+        
+        time = time - floor(time / image.totalTime) * image.totalTime
         var index = 0
-        for var temp: NSTimeInterval = 0, i = 0; i < frameCount; ++i {
-            temp += durations[i]
+        for var temp: NSTimeInterval = 0, i = 0; i < image.frameCount; ++i {
+            temp += image.durations[i]
             if time < temp {
                 index = i
                 break
@@ -229,7 +249,7 @@ public class AnimatedImagePlayer {
         update(self.time, loadImmediately: true)
     }
     
-    public func setImage(image: AnimatedImage, replay: Bool = false) {
+    public func setImage(image: AnimatedImage?, replay: Bool = false) {
         self.image = image
         if replay { moveToTime(0) }
     }

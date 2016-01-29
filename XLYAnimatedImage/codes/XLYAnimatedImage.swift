@@ -58,45 +58,14 @@ extension AnimatedImage {
 }
 
 
-// MARK: - GIF
-public class AnimatedGIFImage: AnimatedImage {
-    struct InvalidDataError: ErrorType {
-        let description = "Data is not a valid GIF data."
-    }
-    
-    static func getGIFSourceDurations(source: CGImageSource) throws -> [NSTimeInterval] {
-        let count = CGImageSourceGetCount(source)
-        guard let type = CGImageSourceGetType(source) where type == kUTTypeGIF && count > 1 else {
-                throw InvalidDataError()
-        }
-        
-        func getDelay(source: CGImageSource, index: Int) -> NSTimeInterval {
-            var delay: NSTimeInterval = kDefaultDurationPerFrame
-            let propertiesDict = CGImageSourceCopyPropertiesAtIndex(source, index, nil)
-            if (propertiesDict != nil) {
-                let gifDictionaryPropertyKey = unsafeBitCast(kCGImagePropertyGIFDictionary, UnsafePointer<Void>.self)
-                let gifProperties = CFDictionaryGetValue(propertiesDict, gifDictionaryPropertyKey)
-                if (gifProperties != nil) {
-                    let gifPropertiesDict = unsafeBitCast(gifProperties, CFDictionary.self)
-                    let unclampedDelayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFUnclampedDelayTime, UnsafePointer<Void>.self)
-                    var number = CFDictionaryGetValue(gifPropertiesDict, unclampedDelayTimePropertyKey)
-                    if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue >= kMinDurationPerFrame {
-                        delay = unsafeBitCast(number, NSNumber.self).doubleValue
-                    } else if number == nil {
-                        let delayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFDelayTime, UnsafePointer<Void>.self)
-                        number = CFDictionaryGetValue(gifPropertiesDict, delayTimePropertyKey)
-                        if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue >= kMinDurationPerFrame {
-                            delay = unsafeBitCast(number, NSNumber.self).doubleValue
-                        }
-                    }
-                }
-            }
-            return delay
-        }
-        
-        return (0..<count).map{ getDelay(source, index: $0) }
-    }
-    
+// MARK: - mainly for GIF. 
+
+/**
+    ios device bug, count for apng will always be 1 bug simulator is ok.
+    Now only support GIF, other will has only the first frame. (will try other way to decode apng)
+*/
+public class AnimatedDataImage: AnimatedImage {
+
     public let scale: CGFloat
     public let totalTime: NSTimeInterval
     public let durations: [NSTimeInterval]
@@ -104,9 +73,10 @@ public class AnimatedGIFImage: AnimatedImage {
     
     private let source: CGImageSource?
     
-    public init(data:NSData, scale: CGFloat = UIScreen.mainScreen().scale) {
+    public init?(data:NSData, scale: CGFloat = UIScreen.mainScreen().scale) {
+        self.scale = scale
         source = CGImageSourceCreateWithData(data, nil)
-        if let source = source, gifDurations = try? AnimatedGIFImage.getGIFSourceDurations(source) {
+        if let source = source, gifDurations = try? getSourceDurations(source) {
             totalTime = gifDurations.reduce(0){ $0 + $1 }
             durations = gifDurations.map{ $0 }
             if let image = decodeCGImage(CGImageSourceCreateImageAtIndex(source, 0, nil)) {
@@ -115,11 +85,15 @@ public class AnimatedGIFImage: AnimatedImage {
                 firtImage = UIImage()
             }
         } else {
-            totalTime = kDefaultDurationPerFrame
-            durations = [kDefaultDurationPerFrame]
-            firtImage = UIImage(data: data, scale: scale) ?? UIImage()
+            totalTime = 0
+            durations = [0]
+            if let image = UIImage(data: data, scale: scale) {
+                firtImage = image
+            } else {
+                firtImage = UIImage()
+                return nil
+            }
         }
-        self.scale = scale
     }
  
     public func imageAtIndex(index: Int) -> UIImage? {
@@ -139,28 +113,31 @@ public class AnimatedFrameImage: AnimatedImage {
     
     private var images: [UIImage]
     
-    public convenience init(animatedUIImage image: UIImage) {
-        if let images = image.images {
-            self.init(images: images, durations: Array<NSTimeInterval>(count: images.count, repeatedValue: image.duration))
+    public convenience init?(animatedUIImage image: UIImage) {
+        if let images = image.images where images.count > 0 {
+            self.init(images: images, durations: [NSTimeInterval](count: images.count, repeatedValue: image.duration))
         } else {
             self.init(images: [image], durations: [image.duration])
         }
     }
         
-    public init(images: [UIImage], var durations: [NSTimeInterval]) {
+    public init?(images: [UIImage], var durations: [NSTimeInterval]) {
         if images.count == 0 && durations.count == 0 {
-            self.images = [UIImage()]
-            self.durations = [kDefaultDurationPerFrame]
-            self.totalTime = kDefaultDurationPerFrame
-            scale = self.images[0].scale
+            (self.scale, self.totalTime, self.durations, self.images) = (0, 0, [], [])
+            return nil
         } else {
             if durations.count < images.count {
                 durations.appendContentsOf(Array<NSTimeInterval>(count: images.count - durations.count, repeatedValue: kDefaultDurationPerFrame))
             }
             let validImages = zip(images, durations).map { (image: $0, duration: $1 < kMinDurationPerFrame ? kDefaultDurationPerFrame : $1) }
             self.images = validImages.map { $0.image }
-            self.durations = validImages.map { $0.duration }
-            self.totalTime = self.durations.reduce(0){ $0 + $1 }
+            if validImages.count >= 2 {
+                self.durations = validImages.map { $0.duration }
+                self.totalTime = self.durations.reduce(0){ $0 + $1 }
+            } else {
+                self.durations = [0]
+                self.totalTime = 0
+            }
             self.scale = self.images[0].scale
         }
     }
@@ -175,3 +152,41 @@ public class AnimatedFrameImage: AnimatedImage {
     }
 }
 
+
+// MARK: - helper methods
+
+private struct InvalidAnimateDataError: ErrorType {
+    let description = "Data is not a valid animated image data or frame count not > 2."
+}
+
+private func getSourceDurations(source: CGImageSource) throws -> [NSTimeInterval] {
+    let count = CGImageSourceGetCount(source)
+    guard let type = CGImageSourceGetType(source) where type == kUTTypeGIF && count > 1 else {
+        throw InvalidAnimateDataError()
+    }
+    return (0..<count).map{ getGIFDelay(source, index: $0) }
+}
+
+func getGIFDelay(source: CGImageSource, index: Int) -> NSTimeInterval {
+    var delay: NSTimeInterval = kDefaultDurationPerFrame
+    let propertiesDict = CGImageSourceCopyPropertiesAtIndex(source, index, nil)
+    if (propertiesDict != nil) {
+        let dictionaryPropertyKey = unsafeBitCast(kCGImagePropertyGIFDictionary, UnsafePointer<Void>.self)
+        let properties = CFDictionaryGetValue(propertiesDict, dictionaryPropertyKey)
+        if (properties != nil) {
+            let propertiesDict = unsafeBitCast(properties, CFDictionary.self)
+            let unclampedDelayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFUnclampedDelayTime, UnsafePointer<Void>.self)
+            var number = CFDictionaryGetValue(propertiesDict, unclampedDelayTimePropertyKey)
+            if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue >= kMinDurationPerFrame {
+                delay = unsafeBitCast(number, NSNumber.self).doubleValue
+            } else if number == nil {
+                let delayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFDelayTime, UnsafePointer<Void>.self)
+                number = CFDictionaryGetValue(propertiesDict, delayTimePropertyKey)
+                if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue >= kMinDurationPerFrame {
+                    delay = unsafeBitCast(number, NSNumber.self).doubleValue
+                }
+            }
+        }
+    }
+    return delay
+}
