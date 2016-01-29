@@ -52,13 +52,16 @@ public class AnimatedImagePlayer {
                 OSSpinLockUnlock(&spinLock)
                 moveToTime(0)
                 if let image = image {
-                    handler(image: image.firtImage, index: 0)
+                    display(image: image.firtImage, index: 0)
                     link.paused = image.frameCount < 2
+                } else {
+                    stop()
                 }
             }
         }
     }
-    let handler: (image: UIImage, index: Int) -> Void
+    let display: (image: UIImage, index: Int) -> Void
+    let stop: () -> Void
     
     private var link: CADisplayLink!
     
@@ -69,8 +72,10 @@ public class AnimatedImagePlayer {
     private let operationQueue = NSOperationQueue()
     
     public init(runloopMode: String = NSRunLoopCommonModes,
-        handler: (image: UIImage, index: Int) -> Void) {
-            self.handler = handler
+        display: (image: UIImage, index: Int) -> Void,
+        stop: () -> Void) {
+            self.display = display
+            self.stop = stop
             link = CADisplayLink(target: WeakWrapper(self), selector: "linkFired:")
             link.addToRunLoop(NSRunLoop.mainRunLoop(), forMode: runloopMode)
             link.frameInterval = 1
@@ -81,6 +86,7 @@ public class AnimatedImagePlayer {
     
     deinit {
         link.invalidate()
+        if image != nil { stop() }
         operationQueue.cancelAllOperations()
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
@@ -121,7 +127,7 @@ public class AnimatedImagePlayer {
             if let state = state {
                 miss = false
                 if case .Image(let image) = state {
-                    handler(image: image, index: index)
+                    display(image: image, index: index)
                 }
             } else {
                 miss = true

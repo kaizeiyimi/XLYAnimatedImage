@@ -23,10 +23,12 @@ let data = ... // load from some where, network or ...
 let animatedImage = AnimatedDataImage(data: data, scale: default)
 
 // setup player and keep a reference.
-let player = AnimatedImagePlayer {
-image, index in
-someImageView.image = image
-}
+let player = AnimatedImagePlayer(display: {[weak self] image, index in
+        self?.image = image
+    },
+    stop: {[weak self] in
+        self?.image = nil
+    })
 
 // setup image
 player.image = animatedImage

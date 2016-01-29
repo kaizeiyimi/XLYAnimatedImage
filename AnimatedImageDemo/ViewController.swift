@@ -131,7 +131,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func toggleSkipFrame(sender: AnyObject) {
-        let player = imageView.xly_animatedImagePlayer!
+        let player = imageView.xly_animatedImagePlayer
         player.skipFrames = !player.skipFrames
     }
 

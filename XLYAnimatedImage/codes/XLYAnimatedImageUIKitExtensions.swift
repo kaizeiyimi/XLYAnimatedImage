@@ -21,9 +21,13 @@ extension UIImageView {
             if let player = objc_getAssociatedObject(self, &UIImageView.kAnimatedImagePlayerKey) as? AnimatedImagePlayer {
                 return player
             }
-            let player = AnimatedImagePlayer {[weak self] (image, index) -> Void in
-                self?.image = image
-            }
+            let player = AnimatedImagePlayer(
+                display: {[weak self] image, index in
+                    self?.image = image
+                },
+                stop: {[weak self] in
+                    self?.image = nil
+            })
             self.xly_animatedImagePlayer = player
             return player
         }
