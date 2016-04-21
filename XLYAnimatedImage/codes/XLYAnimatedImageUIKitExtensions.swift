@@ -10,7 +10,9 @@ import UIKit
 
 
 extension UIImageView {
-    static private var kAnimatedImagePlayerKey = "kaizei.yimi.kAnimatedImagePlayerKey"
+    private struct AssociatedKeys {
+        static var kAnimatedImagePlayerKey = "kaizei.yimi.kAnimatedImagePlayerKey"
+    }
     
     public func xly_setAnimatedImage(image: AnimatedImage?, replay: Bool = false) {
         xly_animatedImagePlayer.setImage(image, replay: replay)
@@ -18,7 +20,7 @@ extension UIImageView {
     
     public var xly_animatedImagePlayer: AnimatedImagePlayer! {
         get {
-            if let player = objc_getAssociatedObject(self, &UIImageView.kAnimatedImagePlayerKey) as? AnimatedImagePlayer {
+            if let player = objc_getAssociatedObject(self, &AssociatedKeys.kAnimatedImagePlayerKey) as? AnimatedImagePlayer {
                 return player
             }
             let player = AnimatedImagePlayer(
@@ -31,6 +33,6 @@ extension UIImageView {
             self.xly_animatedImagePlayer = player
             return player
         }
-        set { objc_setAssociatedObject(self, &UIImageView.kAnimatedImagePlayerKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        set { objc_setAssociatedObject(self, &AssociatedKeys.kAnimatedImagePlayerKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
 }

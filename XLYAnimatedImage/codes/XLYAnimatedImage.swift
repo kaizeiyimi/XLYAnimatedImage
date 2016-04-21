@@ -121,7 +121,8 @@ public class AnimatedFrameImage: AnimatedImage {
         }
     }
         
-    public init?(images: [UIImage], var durations: [NSTimeInterval]) {
+    public init?(images: [UIImage], durations: [NSTimeInterval]) {
+        var durations = durations
         if images.count == 0 && durations.count == 0 {
             (self.scale, self.totalTime, self.durations, self.images) = (0, 0, [], [])
             return nil
