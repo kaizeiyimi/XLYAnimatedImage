@@ -2,7 +2,7 @@
 
 play animated images using player. Easy to associated with any thing which can draw UIImage.
 
-support **speed**, **skipFrames**, **displayLinkFrameInterval** config. Auto preload and clear cache if needed.
+support **speed**, **skipFramesEnabled**, **displayLinkFrameInterval** config. Auto preload and clear cache if needed.
 
 ### updates
 updated to swift 2.2 and refined some code.
@@ -45,7 +45,7 @@ player.onTimeElapse = { [unowned self] time in
 }
 
 player.speed = 2
-player.skipFrames = true
+player.skipFramesEnabled = true
 player.displayLinkFrameInterval = 2
 
 
@@ -68,7 +68,7 @@ see more in demo.
 ### feature
 
  * uses protocol so that anyone can make impl of `AnimatedImage` and can be playered with player.
- * player supports `paused`, `speed`, `skipFrames`, `displayLinkFrameInterval` config.
+ * player supports `paused`, `speed`, `skipFramesEnabled`, `displayLinkFrameInterval` config.
  * player provides `frameIndex` for current image frame index, `time` for current playing time.
  * player can move to any index by calling `moveToFrameAtIndex(_:)`, can move to any time by calling `moveToTime(_:)`.
  * player uses `display` callback for you to display a frame, `stop` callback for you to stop playing an image, and `onTimeElapse` to nofify time changing.

@@ -14,11 +14,11 @@ extension UIImageView {
         static var kAnimatedImagePlayerKey = "kaizei.yimi.kAnimatedImagePlayerKey"
     }
     
-    public func xly_setAnimatedImage(image: AnimatedImage?, replay: Bool = false) {
+    public func xly_setAnimatedImage(_ image: AnimatedImage?, replay: Bool = false) {
         xly_animatedImagePlayer.setImage(image, replay: replay)
     }
     
-    public var xly_animatedImagePlayer: AnimatedImagePlayer! {
+    public var xly_animatedImagePlayer: AnimatedImagePlayer {
         get {
             if let player = objc_getAssociatedObject(self, &AssociatedKeys.kAnimatedImagePlayerKey) as? AnimatedImagePlayer {
                 return player

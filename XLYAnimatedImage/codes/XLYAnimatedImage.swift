@@ -10,14 +10,14 @@ import UIKit
 import ImageIO
 import MobileCoreServices
 
-private let kMinDurationPerFrame = 0.01, kDefaultDurationPerFrame = 0.1
+private let kMinDurationPerFrame: TimeInterval = 0.01, kDefaultDurationPerFrame: TimeInterval = 0.1
 
 // MARK: - image
 public protocol AnimatedImage: class {
     var scale: CGFloat { get }
     var frameCount: Int { get }
-    var totalTime: NSTimeInterval { get }
-    var durations: [NSTimeInterval] { get }
+    var totalTime: TimeInterval { get }
+    var durations: [TimeInterval] { get }
     var firtImage: UIImage { get }
     func image(at index: Int) -> UIImage?
 }
@@ -33,23 +33,23 @@ extension AnimatedImage {
     ios device bug, count for apng will always be 1 bug simulator is ok.
     Now only support GIF, other will has only the first frame. (will try other way to decode apng)
 */
-public class AnimatedDataImage: AnimatedImage {
+open class AnimatedDataImage: AnimatedImage {
 
-    public let scale: CGFloat
-    public let totalTime: NSTimeInterval
-    public let durations: [NSTimeInterval]
-    public let firtImage: UIImage
+    open let scale: CGFloat
+    open let totalTime: TimeInterval
+    open let durations: [TimeInterval]
+    open let firtImage: UIImage
     
     private let source: CGImageSource?
     
-    public init?(data:NSData, scale: CGFloat = UIScreen.mainScreen().scale) {
+    public init?(data:Data, scale: CGFloat = UIScreen.main.scale) {
         self.scale = scale
-        source = CGImageSourceCreateWithData(data, nil)
-        if let source = source, gifDurations = try? getSourceDurations(source) {
+        source = CGImageSourceCreateWithData(data as CFData, nil)
+        if let source = source, let gifDurations = try? getSourceDurations(source) {
             totalTime = gifDurations.reduce(0){ $0 + $1 }
             durations = gifDurations.map{ $0 }
             if let image = decodeCGImage(CGImageSourceCreateImageAtIndex(source, 0, nil)) {
-                 firtImage = UIImage(CGImage: image, scale: scale, orientation: .Up)
+                 firtImage = UIImage(cgImage: image, scale: scale, orientation: .up)
             } else {
                 firtImage = UIImage()
             }
@@ -65,39 +65,39 @@ public class AnimatedDataImage: AnimatedImage {
         }
     }
  
-    public func image(at index: Int) -> UIImage? {
-        if let source = source, image = decodeCGImage(CGImageSourceCreateImageAtIndex(source, index % frameCount, nil)) {
-            return UIImage(CGImage: image, scale: scale, orientation: .Up)
+    open func image(at index: Int) -> UIImage? {
+        if let source = source, let image = decodeCGImage(CGImageSourceCreateImageAtIndex(source, index % frameCount, nil)) {
+            return UIImage(cgImage: image, scale: scale, orientation: .up)
         }
         return nil
     }
 }
 
 // MARK: - imageArray
-public class AnimatedFrameImage: AnimatedImage {
-    public let scale: CGFloat
-    public let totalTime: NSTimeInterval
-    public let durations: [NSTimeInterval]
-    public var firtImage: UIImage { return images[0] }
+open class AnimatedFrameImage: AnimatedImage {
+    open let scale: CGFloat
+    open let totalTime: TimeInterval
+    open let durations: [TimeInterval]
+    open var firtImage: UIImage { return images[0] }
     
     private var images: [UIImage]
     
     public convenience init?(animatedUIImage image: UIImage) {
-        if let images = image.images where images.count > 0 {
-            self.init(images: images, durations: [NSTimeInterval](count: images.count, repeatedValue: image.duration))
+        if let images = image.images , images.count > 0 {
+            self.init(images: images, durations: [TimeInterval](repeating: image.duration, count: images.count))
         } else {
             self.init(images: [image], durations: [image.duration])
         }
     }
         
-    public init?(images: [UIImage], durations: [NSTimeInterval]) {
+    public init?(images: [UIImage], durations: [TimeInterval]) {
         var durations = durations
         if images.count == 0 && durations.count == 0 {
             (self.scale, self.totalTime, self.durations, self.images) = (0, 0, [], [])
             return nil
         } else {
             if durations.count < images.count {
-                durations.appendContentsOf(Array<NSTimeInterval>(count: images.count - durations.count, repeatedValue: kDefaultDurationPerFrame))
+                durations.append(contentsOf: Array<TimeInterval>(repeating: kDefaultDurationPerFrame, count: images.count - durations.count))
             }
             let validImages = zip(images, durations).map { (image: $0, duration: $1 < kMinDurationPerFrame ? kDefaultDurationPerFrame : $1) }
             self.images = validImages.map { $0.image }
@@ -112,10 +112,10 @@ public class AnimatedFrameImage: AnimatedImage {
         }
     }
     
-    public func image(at index: Int) -> UIImage? {
+    open func image(at index: Int) -> UIImage? {
         let origin = images[index % frameCount]
-        if let decoded = decodeCGImage(origin.CGImage) {
-            return UIImage(CGImage: decoded, scale: scale, orientation: .Up)
+        if let decoded = decodeCGImage(origin.cgImage) {
+            return UIImage(cgImage: decoded, scale: scale, orientation: .up)
         } else {
             return origin
         }
@@ -125,65 +125,65 @@ public class AnimatedFrameImage: AnimatedImage {
 
 // MARK: - helper methods
 
-private struct InvalidAnimateDataError: ErrorType {
+private struct InvalidAnimateDataError: Error {
     let description = "Data is not a valid animated image data or frame count not > 2."
 }
 
 /// stolen from SDWebImage's decoder. just change OC to swift.
-private func decodeCGImage(image: CGImage?) -> CGImage? {
+private func decodeCGImage(_ image: CGImage?) -> CGImage? {
     guard let image = image else { return nil }
     var result: CGImage?
     autoreleasepool {
-        let width = CGImageGetWidth(image), height = CGImageGetHeight(image)
+        let width = image.width, height = image.height
         
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        var bitmapInfo = CGImageGetBitmapInfo(image).rawValue
-        let infoMask = bitmapInfo & CGBitmapInfo.AlphaInfoMask.rawValue
-        let anyNonAlpha = (infoMask == CGImageAlphaInfo.None.rawValue ||
-            infoMask == CGImageAlphaInfo.NoneSkipFirst.rawValue ||
-            infoMask == CGImageAlphaInfo.NoneSkipLast.rawValue)
+        var bitmapInfo = image.bitmapInfo.rawValue
+        let infoMask = bitmapInfo & CGBitmapInfo.alphaInfoMask.rawValue
+        let anyNonAlpha = (infoMask == CGImageAlphaInfo.none.rawValue ||
+            infoMask == CGImageAlphaInfo.noneSkipFirst.rawValue ||
+            infoMask == CGImageAlphaInfo.noneSkipLast.rawValue)
         
-        if infoMask == CGImageAlphaInfo.None.rawValue && CGColorSpaceGetNumberOfComponents(colorSpace) > 1 {
-            bitmapInfo &= ~CGBitmapInfo.AlphaInfoMask.rawValue
-            bitmapInfo |= CGImageAlphaInfo.NoneSkipFirst.rawValue
-        } else if !anyNonAlpha && CGColorSpaceGetNumberOfComponents(colorSpace) == 3 {
-            bitmapInfo &= ~CGBitmapInfo.AlphaInfoMask.rawValue
-            bitmapInfo |= CGImageAlphaInfo.PremultipliedFirst.rawValue
+        if infoMask == CGImageAlphaInfo.none.rawValue && colorSpace.numberOfComponents > 1 {
+            bitmapInfo &= ~CGBitmapInfo.alphaInfoMask.rawValue
+            bitmapInfo |= CGImageAlphaInfo.noneSkipFirst.rawValue
+        } else if !anyNonAlpha && colorSpace.numberOfComponents == 3 {
+            bitmapInfo &= ~CGBitmapInfo.alphaInfoMask.rawValue
+            bitmapInfo |= CGImageAlphaInfo.premultipliedFirst.rawValue
         }
         
-        let context = CGBitmapContextCreate(nil, CGImageGetWidth(image), CGImageGetHeight(image), CGImageGetBitsPerComponent(image), 0, colorSpace, bitmapInfo)
+        let context = CGContext(data: nil, width: image.width, height: image.height, bitsPerComponent: image.bitsPerComponent, bytesPerRow: 0, space: colorSpace, bitmapInfo: bitmapInfo)
         
-        CGContextDrawImage(context!, CGRect(x: 0, y: 0, width: width, height: height), image)
-        result = CGBitmapContextCreateImage(context!)
+        context!.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+        result = context!.makeImage()
     }
     return result
 }
 
-private func getSourceDurations(source: CGImageSource) throws -> [NSTimeInterval] {
+private func getSourceDurations(_ source: CGImageSource) throws -> [TimeInterval] {
     let count = CGImageSourceGetCount(source)
-    guard let type = CGImageSourceGetType(source) where type == kUTTypeGIF && count > 1 else {
+    guard let type = CGImageSourceGetType(source) , type == kUTTypeGIF && count > 1 else {
         throw InvalidAnimateDataError()
     }
-    return (0..<count).map{ getGIFDelay(source, index: $0) }
+    return (0..<count).map{ getGIFDelay(source: source, index: $0) }
 }
 
-private func getGIFDelay(source: CGImageSource, index: Int) -> NSTimeInterval {
-    var delay: NSTimeInterval = kDefaultDurationPerFrame
+private func getGIFDelay(source: CGImageSource, index: Int) -> TimeInterval {
+    var delay: TimeInterval = kDefaultDurationPerFrame
     let propertiesDict = CGImageSourceCopyPropertiesAtIndex(source, index, nil)
     if (propertiesDict != nil) {
-        let dictionaryPropertyKey = unsafeBitCast(kCGImagePropertyGIFDictionary, UnsafePointer<Void>.self)
+        let dictionaryPropertyKey = unsafeBitCast(kCGImagePropertyGIFDictionary, to: UnsafeRawPointer.self)
         let properties = CFDictionaryGetValue(propertiesDict, dictionaryPropertyKey)
         if (properties != nil) {
-            let propertiesDict = unsafeBitCast(properties, CFDictionary.self)
-            let unclampedDelayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFUnclampedDelayTime, UnsafePointer<Void>.self)
+            let propertiesDict = unsafeBitCast(properties, to: CFDictionary.self)
+            let unclampedDelayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFUnclampedDelayTime, to: UnsafeRawPointer.self)
             var number = CFDictionaryGetValue(propertiesDict, unclampedDelayTimePropertyKey)
-            if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue >= kMinDurationPerFrame {
-                delay = unsafeBitCast(number, NSNumber.self).doubleValue
+            if number != nil && unsafeBitCast(number, to: NSNumber.self).doubleValue >= kMinDurationPerFrame {
+                delay = unsafeBitCast(number, to: NSNumber.self).doubleValue
             } else if number == nil {
-                let delayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFDelayTime, UnsafePointer<Void>.self)
+                let delayTimePropertyKey = unsafeBitCast(kCGImagePropertyGIFDelayTime, to: UnsafeRawPointer.self)
                 number = CFDictionaryGetValue(propertiesDict, delayTimePropertyKey)
-                if number != nil && unsafeBitCast(number, NSNumber.self).doubleValue >= kMinDurationPerFrame {
-                    delay = unsafeBitCast(number, NSNumber.self).doubleValue
+                if number != nil && unsafeBitCast(number, to: NSNumber.self).doubleValue >= kMinDurationPerFrame {
+                    delay = unsafeBitCast(number, to: NSNumber.self).doubleValue
                 }
             }
         }

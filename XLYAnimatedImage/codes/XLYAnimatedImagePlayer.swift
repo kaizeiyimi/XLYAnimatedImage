@@ -9,99 +9,96 @@
 import UIKit
 
 
-private enum ImageState {
-    case Image(image: UIImage)
-    case None
-}
-
-public class AnimatedImagePlayer {
+open class AnimatedImagePlayer {
     
-    static private let preloadCount = 2 // preload 2 frames is enough now.
+    open var preloadCount = 2 // preload 2 frames is enough now.
     
-    public var speed: Double = 1
-    public var paused: Bool {
-        get { return link.paused }
+    open var speed: Double = 1
+    open var paused: Bool {
+        get { return link.isPaused }
         set {
-            if let image = self.image where image.frameCount >= 2 {
-                link.paused = newValue
+            if let image = self.image , image.frameCount >= 2 {
+                link.isPaused = newValue
             }
         }
     }
     
-    public var skipFrames = true
-    public var displayLinkFrameInterval: Int {
+    open var skipFramesEnabled = true
+    open var displayLinkFrameInterval: Int {
         get { return link.frameInterval }
         set { link.frameInterval = newValue }
     }
     
-    public var onTimeElapse: (NSTimeInterval -> Void)?
+    open var onTimeElapse: ((TimeInterval) -> Void)?
     
-    public private(set) var frameIndex: Int = 0
-    public private(set) var time: NSTimeInterval = 0 {
+    open private(set) var frameIndex: Int = 0
+    open private(set) var time: TimeInterval = 0 {
         didSet {
             onTimeElapse?(time)
         }
     }
     
-    public private(set) var currentImage: UIImage!
+    open private(set) var currentImage: UIImage!
     
-    public var image: AnimatedImage? {
+    open var image: AnimatedImage? {
         didSet {
             if image !== oldValue {
                 OSSpinLockLock(&spinLock)
                 operationQueue.cancelAllOperations()
                 cache.removeAll()
                 OSSpinLockUnlock(&spinLock)
-                moveToTime(0)
+                move(toTime: 0)
                 if let image = image {
-                    display(image: image.firtImage, index: 0)
-                    link.paused = image.frameCount < 2
+                    display(image.firtImage, 0)
+                    link.isPaused = image.frameCount < 2
                     currentImage = image.firtImage
                 } else {
                     stop()
                 }
             } else {
                 if let image = currentImage {
-                    display(image: image, index: frameIndex)
+                    display(image, frameIndex)
                 }
             }
         }
     }
-    var display: (image: UIImage, index: Int) -> Void
+    var display: (_ image: UIImage, _ index: Int) -> Void
     var stop: () -> Void
     
-    private var link: CADisplayLink!
+    private let link: CADisplayLink
     
     private var spinLock = OS_SPINLOCK_INIT
-    private var cache: [Int: ImageState] = [:]
+    private var cache: [Int: UIImage?] = [:]
     private var miss = true
     
-    private let operationQueue = NSOperationQueue()
+    private let operationQueue = OperationQueue()
     
-    public init(runloopMode: String = NSRunLoopCommonModes,
-        display: (image: UIImage, index: Int) -> Void,
-        stop: () -> Void) {
+    public init(runloopMode: RunLoopMode = RunLoopMode.commonModes,
+        display: @escaping (_ image: UIImage, _ index: Int) -> Void,
+        stop: @escaping () -> Void) {
         
         self.display = display
         self.stop = stop
-        link = CADisplayLink(target: WeakWrapper(self), selector: #selector(self.linkFired(_:)))
-        link.addToRunLoop(NSRunLoop.mainRunLoop(), forMode: runloopMode)
+        let wrapper = WeakWrapper()
+        link = CADisplayLink(target: wrapper, selector: #selector(self.linkFired(_:)))
+        wrapper.target = self
+        link.add(to: RunLoop.main, forMode: runloopMode)
         link.frameInterval = 1
-        link.paused = true
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.clearCache(_:)), name: UIApplicationDidReceiveMemoryWarningNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.clearCache(_:)), name: UIApplicationDidEnterBackgroundNotification, object: nil)
+        link.isPaused = true
+        NotificationCenter.default.addObserver(self, selector: #selector(self.clearCache(_:)), name: NSNotification.Name.UIApplicationDidReceiveMemoryWarning, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.clearCache(_:)), name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
     }
     
     deinit {
         link.invalidate()
         if image != nil { stop() }
         operationQueue.cancelAllOperations()
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
     // MARK: Public
-    public func moveToFrameAtIndex(index: Int) {
-        guard let image = image where image.frameCount >= 2 else {
+    open func move(toFrame index: Int) {
+        guard let image = image , image.frameCount >= 2 else {
             self.frameIndex = 0
             self.time = 0
             return
@@ -110,11 +107,11 @@ public class AnimatedImagePlayer {
         frameIndex = index % image.frameCount
         self.time = image.durations[0...frameIndex].reduce(0) { $0 + $1 }
         miss = true
-        update(self.time, loadImmediately: true)
+        update(forNextTime: self.time, loadImmediately: true)
     }
     
-    public func moveToTime(time: NSTimeInterval) {
-        guard let image = image where image.frameCount >= 2 else {
+    open func move(toTime time: TimeInterval) {
+        guard let image = image , image.frameCount >= 2 else {
             self.frameIndex = 0
             self.time = 0
             return
@@ -134,27 +131,27 @@ public class AnimatedImagePlayer {
         self.frameIndex = index
         self.time = time
         miss = true
-        update(self.time, loadImmediately: true)
+        update(forNextTime: self.time, loadImmediately: true)
     }
     
-    public func setImage(image: AnimatedImage?, replay: Bool = false) {
+    open func setImage(_ image: AnimatedImage?, replay: Bool = false) {
         self.image = image
-        if replay { moveToTime(0) }
+        if replay { move(toTime: 0) }
     }
     
-    public func replaceHandlers(display display: (image: UIImage, index: Int) -> Void, stop: () -> Void) {
+    open func replaceHandlers(display: @escaping (_ image: UIImage, _ index: Int) -> Void, stop: @escaping () -> Void) {
         self.display = display
         self.stop = stop
     }
     
     // MARK: private
-    @objc private func clearCache(notify: NSNotification) {
+    @objc private func clearCache(_ notify: Notification) {
         OSSpinLockLock(&spinLock)
         if let frameCount = image?.frameCount {
-            let kept = (1...AnimatedImagePlayer.preloadCount).map {
+            let kept = (1...preloadCount).map {
                 (($0 + frameIndex) % frameCount, cache[($0 + frameIndex) % frameCount])
             }
-            cache.removeAll(keepCapacity: true)
+            cache.removeAll(keepingCapacity: true)
             kept.forEach { cache[$0.0] = $0.1 }
         } else {
             cache.removeAll()
@@ -162,18 +159,18 @@ public class AnimatedImagePlayer {
         OSSpinLockUnlock(&spinLock)
     }
     
-    @objc private func linkFired(link: CADisplayLink) {
-        guard let image = image where image.frameCount >= 2 else {
-            link.paused = true
+    @objc private func linkFired(_ link: CADisplayLink) {
+        guard let image = image , image.frameCount >= 2 else {
+            link.isPaused = true
             self.frameIndex = 0
             self.time = 0
             return
         }
         let nextTime = time - floor(time / image.totalTime) * image.totalTime + link.duration * Double(link.frameInterval) * speed
-        update(nextTime)
+        update(forNextTime: nextTime)
     }
     
-    private func update(nextTime: NSTimeInterval, loadImmediately: Bool = false) {
+    private func update(forNextTime nextTime: TimeInterval, loadImmediately: Bool = false) {
         guard let image = image else { return }
         
         // load image at index. only fetch from cache
@@ -183,16 +180,16 @@ public class AnimatedImagePlayer {
             OSSpinLockUnlock(&self.spinLock)
             if let state = state {
                 self.miss = false
-                if case .Image(let image) = state {
+                if let image = state {
                     self.currentImage = image
-                    self.display(image: image, index: index)
+                    self.display(image, index)
                 }
             } else {
                 self.miss = true
             }
         }
         
-        if skipFrames {
+        if skipFramesEnabled {
             var index = 0, temp = 0.0
             for i in 0..<image.frameCount {
                 temp += image.durations[i]
@@ -235,41 +232,41 @@ public class AnimatedImagePlayer {
                 operationQueue.cancelAllOperations()
             }
             
-            let operation = NSBlockOperation()
+            let operation = BlockOperation()
             operation.addExecutionBlock
                 {[weak self, unowned operation, frameCount = image.frameCount, current = frameIndex,
-                    max = (frameIndex + AnimatedImagePlayer.preloadCount) % image.frameCount] in
+                    max = (frameIndex + preloadCount) % image.frameCount] in
                     guard let this = self else { return }
                     
-                    if operation.cancelled { return }
+                    if operation.isCancelled { return }
                     let indies = NSMutableIndexSet()
                     if current < max {
-                        indies.addIndexesInRange(NSMakeRange(current, max - current + 1))
+                        indies.add(in: NSMakeRange(current, max - current + 1))
                     } else {
-                        indies.addIndexesInRange(NSMakeRange(current, frameCount - current))
-                        indies.addIndexesInRange(NSMakeRange(0, max + 1))
+                        indies.add(in: NSMakeRange(current, frameCount - current))
+                        indies.add(in: NSMakeRange(0, max + 1))
                     }
                     
-                    if operation.cancelled { return }
+                    if operation.isCancelled { return }
                     for index in indies {
-                        if operation.cancelled { return }
+                        if operation.isCancelled { return }
                         OSSpinLockLock(&this.spinLock)
                         let state = this.cache[index]
                         OSSpinLockUnlock(&this.spinLock)
                         if state == nil {
                             let image = image.image(at: index)
                             OSSpinLockLock(&this.spinLock)
-                            if !operation.cancelled {
-                                this.cache[index] = image == nil ? .None : .Image(image: image!)
+                            if !operation.isCancelled {
+                                this.cache[index] = Optional<UIImage?>.some(image)
                             }
                             OSSpinLockUnlock(&this.spinLock)
                             
                         }
                     }
                     
-                    if loadImmediately && !operation.cancelled {
-                        dispatch_async(dispatch_get_main_queue()) {[weak self] in
-                            if let this = self where this.frameIndex == current {
+                    if loadImmediately && !operation.isCancelled {
+                        DispatchQueue.main.async {[weak self] in
+                            if let this = self , this.frameIndex == current {
                                 showImageAtIndex(current)
                             }
                         }
@@ -289,7 +286,9 @@ final private class WeakWrapper: NSObject {
         self.target = target
     }
     
-    override func forwardingTargetForSelector(aSelector: Selector) -> AnyObject? {
+    override init() {}
+    
+    override func forwardingTarget(for aSelector: Selector) -> Any? {
         return target
     }
 }
