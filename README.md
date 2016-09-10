@@ -74,7 +74,7 @@ see more in demo.
  * uses protocol so that anyone can make impl of `AnimatedImage` and can be playered with player.
  * player supports `paused`, `speed`, `skipFramesEnabled`, `displayLinkFrameInterval` config.
  * player provides `frameIndex` for current image frame index, `time` for current playing time.
- * player can move to any index by calling `moveToFrameAtIndex(_:)`, can move to any time by calling `moveToTime(_:)`.
+ * player can move to any index by calling `move(ToFrame:)`, can move to any time by calling `move(ToTime:)`.
  * player uses `display` callback for you to display a frame, `stop` callback for you to stop playing an image, and `onTimeElapse` to nofify time changing.
  * also at any time, you can change callbacks and image, and can also refresh an image's playing by set param 'replay' to `true`.
 
