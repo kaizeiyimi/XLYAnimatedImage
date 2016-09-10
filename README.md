@@ -5,11 +5,15 @@ play animated images using player. Easy to associated with any thing which can d
 support **speed**, **skipFramesEnabled**, **displayLinkFrameInterval** config. Auto preload and clear cache if needed.
 
 ### updates
-updated to swift 2.2 and refined some code.
+updated to swift 3 and refined some code.
+
+### swift 3
+
+2.x will base on swift3.0.
 
 ### swift 2
 
-swift 2.2 is required. And better use framework.
+swift 2.2 or 2.2 please use 1.x.
 
 ### Quick look
 
