@@ -257,7 +257,7 @@ public class AnimatedImagePlayer {
                         let state = this.cache[index]
                         OSSpinLockUnlock(&this.spinLock)
                         if state == nil {
-                            let image = image.imageAtIndex(index)
+                            let image = image.image(at: index)
                             OSSpinLockLock(&this.spinLock)
                             if !operation.cancelled {
                                 this.cache[index] = image == nil ? .None : .Image(image: image!)

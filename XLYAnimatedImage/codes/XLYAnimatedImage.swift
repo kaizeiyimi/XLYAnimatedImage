@@ -12,37 +12,6 @@ import MobileCoreServices
 
 private let kMinDurationPerFrame = 0.01, kDefaultDurationPerFrame = 0.1
 
-/// stolen from SDWebImage's decoder. just change OC to swift.
-private func decodeCGImage(image: CGImage?) -> CGImage? {
-    guard let image = image else { return nil }
-    var result: CGImage?
-    autoreleasepool {
-        let width = CGImageGetWidth(image), height = CGImageGetHeight(image)
-        
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        var bitmapInfo = CGImageGetBitmapInfo(image).rawValue
-        let infoMask = bitmapInfo & CGBitmapInfo.AlphaInfoMask.rawValue
-        let anyNonAlpha = (infoMask == CGImageAlphaInfo.None.rawValue ||
-            infoMask == CGImageAlphaInfo.NoneSkipFirst.rawValue ||
-            infoMask == CGImageAlphaInfo.NoneSkipLast.rawValue)
-        
-        if infoMask == CGImageAlphaInfo.None.rawValue && CGColorSpaceGetNumberOfComponents(colorSpace) > 1 {
-            bitmapInfo &= ~CGBitmapInfo.AlphaInfoMask.rawValue
-            bitmapInfo |= CGImageAlphaInfo.NoneSkipFirst.rawValue
-        } else if !anyNonAlpha && CGColorSpaceGetNumberOfComponents(colorSpace) == 3 {
-            bitmapInfo &= ~CGBitmapInfo.AlphaInfoMask.rawValue
-            bitmapInfo |= CGImageAlphaInfo.PremultipliedFirst.rawValue
-        }
-        
-        let context = CGBitmapContextCreate(nil, CGImageGetWidth(image), CGImageGetHeight(image), CGImageGetBitsPerComponent(image), 0, colorSpace, bitmapInfo)
-        
-        CGContextDrawImage(context, CGRect(x: 0, y: 0, width: width, height: height), image)
-        result = CGBitmapContextCreateImage(context)
-    }
-    return result
-}
-
-
 // MARK: - image
 public protocol AnimatedImage: class {
     var scale: CGFloat { get }
@@ -50,7 +19,7 @@ public protocol AnimatedImage: class {
     var totalTime: NSTimeInterval { get }
     var durations: [NSTimeInterval] { get }
     var firtImage: UIImage { get }
-    func imageAtIndex(index: Int) -> UIImage?
+    func image(at index: Int) -> UIImage?
 }
 
 extension AnimatedImage {
@@ -96,7 +65,7 @@ public class AnimatedDataImage: AnimatedImage {
         }
     }
  
-    public func imageAtIndex(index: Int) -> UIImage? {
+    public func image(at index: Int) -> UIImage? {
         if let source = source, image = decodeCGImage(CGImageSourceCreateImageAtIndex(source, index % frameCount, nil)) {
             return UIImage(CGImage: image, scale: scale, orientation: .Up)
         }
@@ -143,7 +112,7 @@ public class AnimatedFrameImage: AnimatedImage {
         }
     }
     
-    public func imageAtIndex(index: Int) -> UIImage? {
+    public func image(at index: Int) -> UIImage? {
         let origin = images[index % frameCount]
         if let decoded = decodeCGImage(origin.CGImage) {
             return UIImage(CGImage: decoded, scale: scale, orientation: .Up)
@@ -160,6 +129,36 @@ private struct InvalidAnimateDataError: ErrorType {
     let description = "Data is not a valid animated image data or frame count not > 2."
 }
 
+/// stolen from SDWebImage's decoder. just change OC to swift.
+private func decodeCGImage(image: CGImage?) -> CGImage? {
+    guard let image = image else { return nil }
+    var result: CGImage?
+    autoreleasepool {
+        let width = CGImageGetWidth(image), height = CGImageGetHeight(image)
+        
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        var bitmapInfo = CGImageGetBitmapInfo(image).rawValue
+        let infoMask = bitmapInfo & CGBitmapInfo.AlphaInfoMask.rawValue
+        let anyNonAlpha = (infoMask == CGImageAlphaInfo.None.rawValue ||
+            infoMask == CGImageAlphaInfo.NoneSkipFirst.rawValue ||
+            infoMask == CGImageAlphaInfo.NoneSkipLast.rawValue)
+        
+        if infoMask == CGImageAlphaInfo.None.rawValue && CGColorSpaceGetNumberOfComponents(colorSpace) > 1 {
+            bitmapInfo &= ~CGBitmapInfo.AlphaInfoMask.rawValue
+            bitmapInfo |= CGImageAlphaInfo.NoneSkipFirst.rawValue
+        } else if !anyNonAlpha && CGColorSpaceGetNumberOfComponents(colorSpace) == 3 {
+            bitmapInfo &= ~CGBitmapInfo.AlphaInfoMask.rawValue
+            bitmapInfo |= CGImageAlphaInfo.PremultipliedFirst.rawValue
+        }
+        
+        let context = CGBitmapContextCreate(nil, CGImageGetWidth(image), CGImageGetHeight(image), CGImageGetBitsPerComponent(image), 0, colorSpace, bitmapInfo)
+        
+        CGContextDrawImage(context!, CGRect(x: 0, y: 0, width: width, height: height), image)
+        result = CGBitmapContextCreateImage(context!)
+    }
+    return result
+}
+
 private func getSourceDurations(source: CGImageSource) throws -> [NSTimeInterval] {
     let count = CGImageSourceGetCount(source)
     guard let type = CGImageSourceGetType(source) where type == kUTTypeGIF && count > 1 else {
@@ -168,7 +167,7 @@ private func getSourceDurations(source: CGImageSource) throws -> [NSTimeInterval
     return (0..<count).map{ getGIFDelay(source, index: $0) }
 }
 
-func getGIFDelay(source: CGImageSource, index: Int) -> NSTimeInterval {
+private func getGIFDelay(source: CGImageSource, index: Int) -> NSTimeInterval {
     var delay: NSTimeInterval = kDefaultDurationPerFrame
     let propertiesDict = CGImageSourceCopyPropertiesAtIndex(source, index, nil)
     if (propertiesDict != nil) {
