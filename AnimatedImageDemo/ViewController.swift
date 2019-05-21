@@ -64,7 +64,7 @@ class ViewController: UIViewController {
             imageView.contentMode = .scaleAspectFill
         }
         
-        segmentedControl.selectedSegmentIndex = UISegmentedControlNoSegment
+        segmentedControl.selectedSegmentIndex = UISegmentedControl.noSegment
         
         imageView.xly_animatedImagePlayer.onTimeElapse = {[weak self] time in
             guard let image = self?.imageView.xly_animatedImagePlayer.image else {

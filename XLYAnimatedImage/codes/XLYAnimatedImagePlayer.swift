@@ -73,7 +73,7 @@ open class AnimatedImagePlayer {
     
     private let operationQueue = OperationQueue()
     
-    public init(runloopMode: RunLoopMode = RunLoopMode.commonModes,
+    public init(runloopMode: RunLoop.Mode = .common,
         display: @escaping (_ image: UIImage, _ index: Int) -> Void,
         stop: @escaping () -> Void) {
         
@@ -85,8 +85,8 @@ open class AnimatedImagePlayer {
         link.add(to: RunLoop.main, forMode: runloopMode)
         link.frameInterval = 1
         link.isPaused = true
-        NotificationCenter.default.addObserver(self, selector: #selector(self.clearCache(_:)), name: NSNotification.Name.UIApplicationDidReceiveMemoryWarning, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.clearCache(_:)), name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.clearCache(_:)), name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.clearCache(_:)), name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
     
     deinit {

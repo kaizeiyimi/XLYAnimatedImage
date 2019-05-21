@@ -35,10 +35,10 @@ extension AnimatedImage {
 */
 open class AnimatedDataImage: AnimatedImage {
 
-    open let scale: CGFloat
-    open let totalTime: TimeInterval
-    open let durations: [TimeInterval]
-    open let firtImage: UIImage
+    public let scale: CGFloat
+    public let totalTime: TimeInterval
+    public let durations: [TimeInterval]
+    public let firtImage: UIImage
     
     private let source: CGImageSource?
     
@@ -75,10 +75,10 @@ open class AnimatedDataImage: AnimatedImage {
 
 // MARK: - imageArray
 open class AnimatedFrameImage: AnimatedImage {
-    open let scale: CGFloat
-    open let totalTime: TimeInterval
-    open let durations: [TimeInterval]
-    open var firtImage: UIImage { return images[0] }
+    public let scale: CGFloat
+    public let totalTime: TimeInterval
+    public let durations: [TimeInterval]
+    public var firtImage: UIImage { return images[0] }
     
     private var images: [UIImage]
     
