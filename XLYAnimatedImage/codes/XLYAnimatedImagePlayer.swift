@@ -227,7 +227,10 @@ open class AnimatedImagePlayer {
         }
         
         // preload
-        if cache.count < image.frameCount && (operationQueue.operationCount == 0 || loadImmediately) {
+        OSSpinLockLock(&self.spinLock)
+        let cacheCount = cache.count
+        OSSpinLockUnlock(&self.spinLock)
+        if cacheCount < image.frameCount && (operationQueue.operationCount == 0 || loadImmediately) {
             if loadImmediately {
                 operationQueue.cancelAllOperations()
             }
